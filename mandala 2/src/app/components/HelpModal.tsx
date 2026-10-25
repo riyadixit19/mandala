@@ -16,7 +16,7 @@ const STEPS = [
   { title: 'Collect stars', body: `${POSES_PER_STAR} different poses make a star. Get ${GOLD_DAY_STARS} stars in one day for a golden day!` },
 ];
 
-const STEP_COLORS = ['bg-blue text-white', 'bg-pink text-white', 'bg-coral text-white', 'bg-purple text-white'];
+const STEP_COLORS = ['bg-lilac text-white', 'bg-rose text-white', 'bg-sun text-ink', 'bg-leaf text-white'];
 
 const TIPS = [
   'Use bright light from the front. A window behind the child makes tracking harder.',
@@ -55,14 +55,14 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
         aria-modal="true"
         aria-labelledby="help-title"
         onClick={e => e.stopPropagation()}
-        className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-md border-2 border-line bg-card sm:rounded-md"
+        className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-2xl bg-card sm:rounded-2xl"
       >
-        <div className="sticky top-0 flex items-center justify-between border-b-2 border-line bg-card px-6 py-4">
-          <h2 id="help-title" className="text-4xl font-black leading-tight text-ink">How to play</h2>
+        <div className="sticky top-0 flex items-center justify-between bg-card px-6 pb-3 pt-6">
+          <h2 id="help-title" className="text-4xl font-extrabold leading-tight text-ink">How to play</h2>
           <button
             ref={closeRef}
             onClick={onClose}
-            className="pt-btn h-14 rounded-md border-2 border-line bg-card px-6 text-xl font-bold text-ink"
+            className="pt-btn h-14 rounded-full bg-paper px-6 text-xl font-bold text-ink"
           >
             Close
           </button>
@@ -72,7 +72,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
           <ol className="space-y-6">
             {STEPS.map((s, i) => (
               <li key={s.title} className="flex items-start gap-5">
-                <span className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-2xl font-black ${STEP_COLORS[i % STEP_COLORS.length]}`}>
+                <span className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-2xl font-extrabold ${STEP_COLORS[i % STEP_COLORS.length]}`}>
                   {i + 1}
                 </span>
                 <div>
@@ -83,12 +83,12 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
             ))}
           </ol>
 
-          <section className="border-t-2 border-line pt-6">
+          <section className="rounded-xl bg-paper p-5">
             <h3 className="text-2xl font-bold text-ink">For grown-ups</h3>
             <p className="mt-2 text-lg leading-relaxed text-muted">
               Mandala starts on Relaxed, which allows for low muscle tone and wobbly balance. You can change how close is close enough in Settings for grown-ups.
             </p>
-            <dl className="mt-4 divide-y-2 divide-line rounded-md border-2 border-line">
+            <dl className="mt-4 divide-y-2 divide-line rounded-md bg-card">
               {(Object.keys(CONFIDENCE_PRESETS) as ConfidenceLevel[]).map(level => (
                 <div key={level} className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:gap-4">
                   <dt className="w-28 shrink-0 text-lg font-bold text-ink">{STRICTNESS_LABELS[level].label}</dt>
@@ -98,7 +98,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
             </dl>
 
             <h3 className="mt-8 text-2xl font-bold text-ink">Better tracking</h3>
-            <ul className="mt-3 list-disc space-y-2 pl-6 text-lg leading-relaxed text-muted marker:text-pink">
+            <ul className="mt-3 list-disc space-y-2 pl-6 text-lg leading-relaxed text-muted marker:text-rose">
               {TIPS.map(t => (
                 <li key={t}>{t}</li>
               ))}

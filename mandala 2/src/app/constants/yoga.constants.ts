@@ -14,9 +14,9 @@ export const ZOOM_LIMITS = {
 // Match strictness presets (how closely the user's joint angles must match the target pose)
 export const CONFIDENCE_PRESETS = {
   // value = minimum match score (0-1) from utils/poseMatcher.ts, calibrated against all 61 poses
-  low: { label: 'Relaxed', value: 0.7, color: 'bg-purple' },
-  medium: { label: 'Standard', value: 0.78, color: 'bg-purple' },
-  high: { label: 'Strict', value: 0.86, color: 'bg-purple' }
+  low: { label: 'Relaxed', value: 0.7, color: 'bg-leaf' },
+  medium: { label: 'Standard', value: 0.78, color: 'bg-leaf' },
+  high: { label: 'Strict', value: 0.86, color: 'bg-leaf' }
 } as const;
 
 export type ConfidenceLevel = keyof typeof CONFIDENCE_PRESETS;
@@ -35,7 +35,7 @@ export const DETECTION_THRESHOLDS = {
 export const SKELETON_SETTINGS = {
   detectedLine: 'rgba(255, 255, 255, 0.92)',
   searchingLine: 'rgba(255, 255, 255, 0.5)',
-  detectedJoint: '#EC4C93',
+  detectedJoint: '#F0C24B',
   searchingJoint: 'rgba(255, 255, 255, 0.75)',
 };
 

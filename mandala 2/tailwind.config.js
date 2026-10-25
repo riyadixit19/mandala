@@ -6,27 +6,31 @@ module.exports = {
   ],
   theme: {
     extend: {
-      // Playful purples, pinks and blues (in the spirit of Khan Academy) on soft lavender paper.
-      // The paper colour is a CSS variable so it can turn golden on a three-star day (see globals.css).
+      // A calm outdoor scene: flat sky, white clouds, a sage hill, and soft salmon, periwinkle,
+      // peach and pale-yellow accents. The page colour is a CSS variable so it can turn golden
+      // on a three-star day (see globals.css).
       colors: {
         paper: 'var(--paper)',
-        card: '#FFFCFF',
-        ink: '#1F2147',
-        muted: '#565A7E',
-        line: '#E3DAF7',
-        purple: { DEFAULT: '#7650F0', dark: '#5734CC', soft: '#EEE8FF' },
-        blue: { DEFAULT: '#1865F2', dark: '#0F4CBF', soft: '#E2ECFF' },
-        pink: { DEFAULT: '#EC4C93', dark: '#C42F72', soft: '#FFE2F0' },
-        coral: { DEFAULT: '#FF6B57', dark: '#D84A38', soft: '#FFE6E1' },
-        gold: { DEFAULT: '#F7B514', dark: '#C98A07', soft: '#FFF3C9' },
+        card: '#FFFEFC',
+        ink: '#2B2E35',
+        muted: '#676C76',
+        line: '#D9E3E7',
+        hill: { DEFAULT: '#619F85', light: '#79B497' },
+        leaf: { DEFAULT: '#4E8C71', dark: '#3F765E', soft: '#DCEDE4' },
+        lilac: { DEFAULT: '#8794E0', dark: '#6E7BCC', soft: '#E4E8FA' },
+        rose: { DEFAULT: '#E3908A', dark: '#C9736D', soft: '#F8E1DE' },
+        peach: { DEFAULT: '#EBAA86', dark: '#D58E68', soft: '#FAE7DB' },
+        sun: { DEFAULT: '#F0C24B', dark: '#D7A62B', soft: '#F3F1B5' },
       },
       fontFamily: {
-        sans: ['var(--font-lato)', 'Lato', '"Noto Sans"', 'Helvetica', 'sans-serif'],
+        sans: ['var(--font-nunito)', 'Nunito', 'ui-rounded', 'system-ui', 'sans-serif'],
+        display: ['var(--font-fraunces)', 'Fraunces', 'Georgia', 'serif'],
       },
       borderRadius: {
-        // big, friendly round corners
-        DEFAULT: '12px',
+        DEFAULT: '14px',
         md: '20px',
+        xl: '28px',
+        '2xl': '36px',
       },
     },
   },

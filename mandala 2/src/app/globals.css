@@ -4,10 +4,10 @@
 
 /* Larger base size: every rem-based size in the app grows with it, so text is easy to read */
 html {
-  --paper: #F4EFFF;
+  --paper: #F4F1EB;
   font-size: 112.5%;
   background: var(--paper);
-  color: #1F2147;
+  color: #2B2E35;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
@@ -15,7 +15,7 @@ html {
 
 /* Three stars in one day: the whole page turns golden */
 html[data-day='gold'] {
-  --paper: #FFE7A0;
+  --paper: #F8ECBE;
 }
 
 body {
@@ -30,19 +30,22 @@ button, a, summary {
 }
 
 :focus-visible {
-  outline: 3px solid #1865F2;
+  outline: 3px solid #2B2E35;
   outline-offset: 3px;
 }
 
-/* Chunky press-down buttons: a darker bottom edge that squashes when pressed */
+/* Fraunces at its softest and most playful */
+.font-display {
+  font-variation-settings: 'SOFT' 100, 'WONK' 1;
+}
+
+/* Buttons squeeze a little when pressed */
 @layer components {
   .pt-btn {
-    border-bottom-width: 5px;
+    transition: transform 0.1s ease-out;
   }
   .pt-btn:active:not(:disabled) {
-    transform: translateY(3px);
-    border-bottom-width: 2px;
-    margin-bottom: 3px;
+    transform: scale(0.96);
   }
 }
 

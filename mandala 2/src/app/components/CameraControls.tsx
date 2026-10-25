@@ -21,14 +21,14 @@ interface CameraControlsProps {
 }
 
 const smallBtn =
-  'pt-btn h-14 min-w-[3.5rem] rounded-md border-2 border-line bg-card px-4 text-xl font-bold text-ink disabled:cursor-not-allowed disabled:text-muted/50';
+  'pt-btn h-14 min-w-[3.5rem] rounded-full bg-paper px-5 text-xl font-bold text-ink disabled:cursor-not-allowed disabled:text-muted/50';
 
 /** The big start/stop button */
 const CameraControls: React.FC<CameraControlsProps> = ({ isModelLoaded, isCameraOn, isCameraLoading, onStartCamera, onStopCamera }) => {
   return isCameraOn ? (
     <button
       onClick={onStopCamera}
-      className="pt-btn h-20 w-full rounded-md border-2 border-coral-dark bg-coral text-3xl font-black text-white"
+      className="pt-btn h-20 w-full rounded-full bg-ink text-3xl font-extrabold text-white"
     >
       Stop camera
     </button>
@@ -36,7 +36,7 @@ const CameraControls: React.FC<CameraControlsProps> = ({ isModelLoaded, isCamera
     <button
       onClick={() => onStartCamera()}
       disabled={!isModelLoaded || isCameraLoading}
-      className="pt-btn h-20 w-full rounded-md border-2 border-purple-dark bg-purple text-3xl font-black text-white disabled:cursor-not-allowed disabled:border-line disabled:bg-line disabled:text-muted"
+      className="pt-btn h-20 w-full rounded-full bg-leaf text-3xl font-extrabold text-white disabled:cursor-not-allowed disabled:bg-line disabled:text-muted"
     >
       {isCameraLoading ? 'Starting...' : 'Start camera'}
     </button>
@@ -56,14 +56,14 @@ export const GrownUpSettings: React.FC<CameraControlsProps> = ({
   onConfidenceLevelChange,
 }) => {
   return (
-    <details className="group rounded-md border-2 border-line bg-card">
-      <summary className="flex cursor-pointer items-center justify-between gap-4 px-5 py-4 text-xl font-bold text-ink">
+    <details className="group rounded-xl bg-card">
+      <summary className="flex cursor-pointer items-center justify-between gap-4 px-6 py-5 text-xl font-bold text-ink">
         Settings for grown-ups
         <span className="text-lg font-normal text-muted group-open:hidden">Show</span>
         <span className="hidden text-lg font-normal text-muted group-open:inline">Hide</span>
       </summary>
 
-      <div className="space-y-6 border-t-2 border-line px-5 py-5">
+      <div className="space-y-6 px-6 pb-6">
         <div>
           <p className="text-lg font-bold text-ink" id="strictness-label">How close is close enough</p>
           <div role="radiogroup" aria-labelledby="strictness-label" className="mt-2 grid grid-cols-3 gap-2">
@@ -75,8 +75,8 @@ export const GrownUpSettings: React.FC<CameraControlsProps> = ({
                   role="radio"
                   aria-checked={active}
                   onClick={() => onConfidenceLevelChange(level)}
-                  className={`h-14 rounded-md border-2 px-1 text-base font-bold sm:text-lg ${
-                    active ? 'border-blue-dark bg-blue text-white' : 'border-line bg-card text-ink'
+                  className={`pt-btn h-14 rounded-full px-1 text-base font-bold sm:text-lg ${
+                    active ? 'bg-lilac text-white' : 'bg-paper text-ink'
                   }`}
                 >
                   {STRICTNESS_LABELS[level].label}

@@ -15,7 +15,9 @@ interface PosePickerProps {
 }
 
 const HOLD_MS = 550;
-const GROUP_COLORS = ['bg-blue', 'bg-pink', 'bg-coral', 'bg-purple', 'bg-blue', 'bg-coral'];
+// each kind of pose gets its own tile colour, like a sheet of stickers
+const GROUP_TILES = ['bg-lilac-soft', 'bg-rose-soft', 'bg-sun-soft', 'bg-leaf-soft', 'bg-peach-soft', 'bg-paper'];
+const GROUP_DOTS = ['bg-lilac', 'bg-rose', 'bg-sun', 'bg-leaf', 'bg-peach', 'bg-hill'];
 
 function Arrow({ open }: { open: boolean }) {
   return (
@@ -94,14 +96,14 @@ const PosePicker: React.FC<PosePickerProps> = ({ posesData, selectedPoseIndex, o
         onClick={() => setOpen(o => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="pt-btn flex h-20 w-full items-center gap-3 rounded-md border-2 border-blue-dark bg-blue px-4 text-left text-white"
+        className="pt-btn flex h-16 w-full items-center gap-3 rounded-full bg-card pl-2 pr-5 text-left text-ink sm:h-20 sm:pl-3"
       >
         {target && (
-          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded bg-card">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-paper sm:h-14 sm:w-14">
             <PoseFigure pose={target.name} showGround={false} decorative className="h-12 w-12" />
           </span>
         )}
-        <span className="min-w-0 flex-1 truncate text-2xl font-black">{target ? 'Change pose' : 'Pick a pose'}</span>
+        <span className={`min-w-0 flex-1 truncate text-xl font-extrabold sm:text-2xl ${target ? '' : 'pl-4'}`}>{target ? 'Change pose' : 'Pick a pose'}</span>
         <Arrow open={open} />
       </button>
 
@@ -113,17 +115,18 @@ const PosePicker: React.FC<PosePickerProps> = ({ posesData, selectedPoseIndex, o
             role="listbox"
             aria-label="Poses"
             onKeyDown={onListKey}
-            className="pt-drop absolute left-0 right-0 top-full z-40 mt-2 max-h-[65vh] overflow-y-auto rounded-md border-2 border-blue bg-card"
+            className="pt-drop absolute left-0 right-0 top-full z-40 mt-3 max-h-[65vh] overflow-y-auto rounded-xl bg-card px-3 pb-4"
           >
-            <p className="sticky top-0 z-10 border-b-2 border-line bg-card px-4 py-3 text-lg text-muted">
+            <p className="sticky top-0 z-10 -mx-3 bg-card px-5 pb-2 pt-4 text-lg text-muted">
               Tap a pose to pick it. Hold it down, or right-click, to pick it and start.
             </p>
             {groups.map((g, gi) => (
               <div key={g.name} role="group" aria-labelledby={`group-${gi}`}>
-                <p id={`group-${gi}`} className="flex items-center gap-3 px-4 pb-1 pt-4 text-xl font-black text-ink">
-                  <span className={`h-4 w-4 rounded-full ${GROUP_COLORS[gi % GROUP_COLORS.length]}`} aria-hidden />
+                <p id={`group-${gi}`} className="flex items-center gap-2.5 px-2 pb-2 pt-5 text-xl font-extrabold text-ink">
+                  <span className={`h-3.5 w-3.5 rounded-full ${GROUP_DOTS[gi % GROUP_DOTS.length]}`} aria-hidden />
                   {g.name}
                 </p>
+                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-2">
                 {g.items.map(({ pose, index }) => {
                   const selected = index === selectedPoseIndex;
                   return (
@@ -165,15 +168,16 @@ const PosePicker: React.FC<PosePickerProps> = ({ posesData, selectedPoseIndex, o
                       onPointerUp={cancelHold}
                       onPointerLeave={cancelHold}
                       onPointerCancel={cancelHold}
-                      className={`pt-hold mx-2 my-1 flex cursor-pointer items-center gap-4 rounded-md border-2 px-2 py-1 ${
-                        selected ? 'border-purple bg-purple-soft' : 'border-transparent hover:bg-paper'
+                      className={`pt-hold pt-btn flex cursor-pointer flex-col items-center rounded-md px-2 pb-3 pt-1 text-center ${GROUP_TILES[gi % GROUP_TILES.length]} ${
+                        selected ? 'ring-4 ring-ink' : ''
                       }`}
                     >
-                      <PoseFigure pose={pose.name} showGround={false} decorative className="h-16 w-16 shrink-0" />
-                      <span className="text-xl font-bold text-ink">{pose.name}</span>
+                      <PoseFigure pose={pose.name} showGround={false} decorative className="h-24 w-24" />
+                      <span className="text-lg font-bold leading-tight text-ink">{pose.name}</span>
                     </div>
                   );
                 })}
+                </div>
               </div>
             ))}
           </div>

@@ -13,8 +13,8 @@ export function StarShape({ className, filled = true }: { className?: string; fi
     <svg viewBox="0 0 100 100" className={className} aria-hidden>
       <path
         d={STAR_PATH}
-        fill={filled ? '#F7B514' : 'none'}
-        stroke={filled ? '#C98A07' : '#D5CBEA'}
+        fill={filled ? '#F0C24B' : 'none'}
+        stroke={filled ? '#D7A62B' : '#C9D4D8'}
         strokeWidth={6}
         strokeLinejoin="round"
       />
@@ -51,7 +51,7 @@ export function DayTheme() {
   return null;
 }
 
-/** The small star counter for the top-right corner */
+/** The small star counter for the top corner, like a coin count in a game */
 export function StarTracker() {
   const stars = useStarsToday();
   const first = useRef(true);
@@ -66,12 +66,33 @@ export function StarTracker() {
 
   return (
     <div
-      className="flex h-14 items-center gap-2 rounded-md border-2 border-gold bg-gold-soft px-3"
+      className="flex h-14 items-center gap-1.5"
       aria-label={`${stars} ${stars === 1 ? 'star' : 'stars'} today`}
       role="img"
     >
-      <StarShape key={bump} className={`h-9 w-9 ${bump ? 'pt-bump' : ''}`} />
-      <span className="text-2xl font-black tabular-nums text-ink">{stars}</span>
+      <StarShape key={bump} className={`h-8 w-8 ${bump ? 'pt-bump' : ''}`} />
+      <span className="text-2xl font-extrabold tabular-nums text-ink">{stars}</span>
+    </div>
+  );
+}
+
+/** The bar along the top: how many different poses are done on the way to the next star */
+export function StarProgressBar({ done }: { done: number }) {
+  return (
+    <div className="w-full">
+      <div
+        className="h-7 w-full overflow-hidden rounded-full bg-ink/[0.08]"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={POSES_PER_STAR}
+        aria-valuenow={done}
+        aria-label="Different poses done on the way to the next star"
+      >
+        <div className="h-full rounded-full bg-sun-soft" style={{ width: `${(done / POSES_PER_STAR) * 100}%`, transition: 'width 0.6s ease-out' }} />
+      </div>
+      <p className="mt-1 text-center text-base font-extrabold text-ink sm:text-lg">
+        {done} of {POSES_PER_STAR}
+      </p>
     </div>
   );
 }
@@ -93,9 +114,9 @@ export function StarCelebration({ stars, onClose }: { stars: number; onClose: ()
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 p-6" onClick={onClose} role="alertdialog" aria-labelledby="star-title">
-      <div className="pt-pop w-full max-w-md rounded-md border-2 border-gold bg-card px-6 py-8 text-center" onClick={e => e.stopPropagation()}>
+      <div className="pt-pop w-full max-w-md rounded-2xl bg-card px-6 py-10 text-center" onClick={e => e.stopPropagation()}>
         <StarShape className="pt-star-in mx-auto h-40 w-40" />
-        <h2 id="star-title" className="mt-4 text-5xl font-black text-ink">You got a star!</h2>
+        <h2 id="star-title" className="mt-4 font-display text-5xl font-bold text-ink">You got a star!</h2>
         <p className="mt-3 text-2xl text-muted">
           {gold && stars === 3
             ? 'Three stars today. It is a golden day!'
@@ -104,7 +125,7 @@ export function StarCelebration({ stars, onClose }: { stars: number; onClose: ()
         <button
           onClick={onClose}
           autoFocus
-          className="pt-btn mt-6 h-16 w-full rounded-md border-2 border-purple-dark bg-purple text-3xl font-black text-white"
+          className="pt-btn mt-8 h-16 w-full rounded-full bg-leaf text-3xl font-extrabold text-white"
         >
           Yay!
         </button>

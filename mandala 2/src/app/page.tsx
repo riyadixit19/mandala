@@ -1,31 +1,30 @@
-// src/app/page.tsx: the Mandala home screen
+// src/app/page.tsx: the Mandala home screen. The whole page is the scene.
 import Link from 'next/link';
-import { LogoMark } from './components/brand/Logo';
 import { StarTracker } from './components/Stars';
 import PoseCarousel from './figure/PoseCarousel';
 
 export default function Home() {
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center bg-paper px-6 py-12 text-center text-ink">
-      <div className="absolute right-4 top-4 sm:right-6 sm:top-6">
+    <main className="relative h-[100svh] min-h-[560px] text-ink">
+      <div className="absolute inset-0">
+        <PoseCarousel className="h-full w-full" hill={0.3} figure={0.46} />
+      </div>
+
+      <header className="absolute inset-x-0 top-0 flex items-center justify-between px-5 pt-5 sm:px-8">
         <StarTracker />
+      </header>
+
+      <div className="absolute inset-x-0 top-[9%] px-6 text-center">
+        <h1 className="font-display text-6xl font-bold tracking-tight sm:text-7xl">mandala</h1>
+        <p className="mt-2 text-xl font-semibold text-muted sm:text-2xl">yoga with a friend</p>
       </div>
 
-      <LogoMark className="h-20 w-20 text-pink sm:h-24 sm:w-24" strokeWidth={3.4} />
-      <h1 className="mt-3 text-6xl font-black tracking-tight sm:text-7xl">Mandala</h1>
-      <p className="mt-3 text-2xl font-bold text-blue">Yoga with a friend</p>
-
-      <div className="mt-6 rounded-md bg-purple-soft px-6">
-        <PoseCarousel className="block h-64 w-64 sm:h-80 sm:w-80" />
+      <div className="absolute inset-x-0 bottom-[7%] flex flex-col items-center px-6">
+        <Link href="/practice" className="pt-btn inline-flex h-20 items-center rounded-full bg-card px-16 text-3xl font-extrabold text-ink">
+          Start
+        </Link>
+        <p className="mt-4 text-center text-base font-semibold text-card/90">Nothing is saved. The camera stays on this device.</p>
       </div>
-
-      <Link
-        href="/practice"
-        className="pt-btn mt-8 inline-flex h-20 items-center rounded-md border-2 border-purple-dark bg-purple px-16 text-3xl font-black text-white"
-      >
-        Start
-      </Link>
-      <p className="mt-6 max-w-md text-lg text-muted">Nothing is saved. The camera stays on this device.</p>
     </main>
   );
 }

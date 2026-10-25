@@ -16,8 +16,9 @@ import CameraControls, { GrownUpSettings } from './components/CameraControls';
 import PosePanel from './components/PosePanel';
 import HelpModal from './components/HelpModal';
 import CoachMessage from './components/CoachMessage';
-import { Wordmark } from './components/brand/Logo';
-import { StarTracker, StarCelebration } from './components/Stars';
+import { FlowerSticker } from './components/brand/Logo';
+import PoseFigure from './figure/PoseFigure';
+import { StarTracker, StarCelebration, StarProgressBar } from './components/Stars';
 import { addStar, POSES_PER_STAR } from './utils/stars';
 
 /** A detection result older than this is treated as "nobody in frame" */
@@ -343,28 +344,33 @@ const YogaPoseDetector: React.FC = () => {
   return (
     <div className="min-h-screen overflow-x-hidden bg-paper text-ink">
       <header>
-        <div className="mx-auto flex h-24 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-          <Link href="/" className="rounded-md" aria-label="Mandala home">
-            <Wordmark />
-          </Link>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsHelpOpen(true)}
-              className="pt-btn h-14 rounded-md border-2 border-line bg-card px-5 text-xl font-bold text-ink"
-            >
-              Help
-            </button>
+        {/* like a game's top bar: home and stars, progress to the next star, help */}
+        <div className="mx-auto flex max-w-7xl items-start gap-3 px-4 pb-2 pt-4 sm:gap-6 sm:px-6">
+          <div className="flex shrink-0 items-center gap-2">
+            <Link href="/" className="pt-btn flex h-14 w-14 items-center justify-center rounded-full bg-card" aria-label="Mandala home">
+              <FlowerSticker className="h-9 w-9" />
+            </Link>
             <StarTracker />
           </div>
+          <div className="mx-auto mt-3.5 min-w-0 max-w-md flex-1">
+            <StarProgressBar done={starPoses.length} />
+          </div>
+          <button
+            onClick={() => setIsHelpOpen(true)}
+            aria-label="Help"
+            className="pt-btn h-14 w-14 shrink-0 rounded-full bg-card text-2xl font-extrabold text-ink"
+          >
+            ?
+          </button>
         </div>
       </header>
 
       <main className="mx-auto max-w-7xl space-y-6 px-4 pb-10 sm:px-6">
         {error && (
-          <div role="alert" className="flex flex-wrap items-center gap-4 rounded-md border-2 border-coral bg-coral-soft px-5 py-4 text-xl text-coral-dark">
+          <div role="alert" className="flex flex-wrap items-center gap-4 rounded-xl bg-peach-soft px-6 py-4 text-xl text-ink">
             <p className="flex-1">{error}</p>
             {!isModelLoaded && !isLoading && (
-              <button onClick={() => reloadModel()} className="pt-btn h-12 rounded-md border-2 border-coral-dark bg-coral px-5 font-bold text-white">
+              <button onClick={() => reloadModel()} className="pt-btn h-12 rounded-full bg-ink px-6 font-bold text-white">
                 Try again
               </button>
             )}
@@ -376,7 +382,6 @@ const YogaPoseDetector: React.FC = () => {
             <PosePanel
               posesData={posesData}
               selectedPoseIndex={selectedPoseIndex}
-              starProgress={starPoses.length}
               view={sessionView}
               onSelect={setSelectedPoseIndex}
               onSelectAndGo={selectAndGo}
@@ -385,7 +390,7 @@ const YogaPoseDetector: React.FC = () => {
           </div>
 
           <section ref={cameraRef} aria-label="Camera" className="scroll-mt-4 space-y-4">
-            <div className="relative overflow-hidden rounded-md border-4 border-blue bg-ink" style={{ aspectRatio: '4 / 3' }}>
+            <div className="relative overflow-hidden rounded-2xl bg-ink" style={{ aspectRatio: '4 / 3' }}>
               <div
                 className="absolute inset-0"
                 style={{
@@ -407,8 +412,15 @@ const YogaPoseDetector: React.FC = () => {
               )}
 
               {isCameraOn && qualityScore > 0 && qualityScore < 55 && sessionView?.phase !== 'complete' && (
-                <span className="pt-pop absolute left-4 top-4 rounded-md bg-pink px-5 py-3 text-2xl font-black text-white">
+                <span className="pt-pop absolute left-4 top-4 rounded-full bg-sun px-5 py-3 text-2xl font-extrabold text-ink">
                   Step back a little
+                </span>
+              )}
+
+              {/* the pose to copy, stuck on the corner of the camera so both are in view at once */}
+              {isCameraOn && targetName && (
+                <span className="absolute bottom-3 right-3 w-[26%] min-w-[84px] max-w-[170px] rotate-3 rounded-full border-4 border-card bg-paper" aria-hidden>
+                  <PoseFigure pose={targetName} showGround={false} decorative className="block aspect-square w-full" />
                 </span>
               )}
             </div>

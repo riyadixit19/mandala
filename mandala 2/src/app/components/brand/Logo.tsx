@@ -16,11 +16,23 @@ export function LogoMark({ className, strokeWidth = 3 }: { className?: string; s
   );
 }
 
+/** A filled, two-colour flower, used like a sticker */
+export function FlowerSticker({ className, color = '#E3908A', center = '#F0C24B' }: { className?: string; color?: string; center?: string }) {
+  return (
+    <svg viewBox="-50 -50 100 100" className={className} aria-hidden>
+      {Array.from({ length: 8 }, (_, i) => (
+        <path key={i} d={PETAL} transform={`rotate(${i * 45})`} fill={color} />
+      ))}
+      <circle r="12" fill={center} />
+    </svg>
+  );
+}
+
 export function Wordmark({ className }: { className?: string }) {
   return (
-    <span className={`inline-flex items-center gap-3 ${className ?? ''}`}>
-      <LogoMark className="h-10 w-10 text-pink" strokeWidth={3.6} />
-      <span className="text-3xl font-black leading-none tracking-tight text-ink max-[420px]:hidden">Mandala</span>
+    <span className={`inline-flex items-center gap-2.5 ${className ?? ''}`}>
+      <FlowerSticker className="h-10 w-10" />
+      <span className="font-display text-[1.8rem] font-bold leading-none tracking-tight text-ink max-[420px]:hidden">mandala</span>
     </span>
   );
 }
