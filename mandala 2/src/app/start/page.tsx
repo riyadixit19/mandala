@@ -11,7 +11,7 @@ export default function StartPage() {
     <div className="min-h-screen bg-paper text-ink">
       <TopBar />
       <main className="mx-auto max-w-5xl px-4 pb-12 pt-4 sm:px-6">
-        <h1 className="font-display text-5xl font-bold tracking-tight sm:text-6xl">What shall we do?</h1>
+        <h1 className="font-display text-5xl font-bold tracking-tight sm:text-6xl">What should we do?</h1>
 
         <div className="mt-8 grid gap-5 sm:grid-cols-2">
           <Link href="/poses" className="pt-btn group block">
