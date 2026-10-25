@@ -4,39 +4,46 @@
 
 /* Larger base size: every rem-based size in the app grows with it, so text is easy to read */
 html {
+  --paper: #FFF6E5;
   font-size: 112.5%;
-  background: #F1ECE2;
-  color: #2A3732;
+  background: var(--paper);
+  color: #21302B;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Three stars in one day: the whole page turns golden */
+html[data-day='gold'] {
+  --paper: #FFE39A;
 }
 
 body {
   min-height: 100vh;
-  background: #F1ECE2;
+  background: var(--paper);
+  transition: background-color 1.2s ease;
+}
+
+/* no double-tap zoom delay on buttons */
+button, a, summary {
+  touch-action: manipulation;
 }
 
 :focus-visible {
-  outline: 3px solid #3D6956;
+  outline: 3px solid #1C83D6;
   outline-offset: 3px;
 }
 
-/* The character breathes slowly while she holds a pose */
-@keyframes pt-breathe {
-  0%, 100% { transform: scale(1, 1); }
-  50% { transform: scale(1.012, 1.022); }
-}
-
-.pt-breathe {
-  transform-origin: 100px 180px;
-  animation: pt-breathe 4.5s ease-in-out infinite;
-}
-
-.pt-scroll-x {
-  scrollbar-width: none;
-}
-.pt-scroll-x::-webkit-scrollbar {
-  display: none;
+/* Chunky press-down buttons: a darker bottom edge that squashes when pressed */
+@layer components {
+  .pt-btn {
+    border-bottom-width: 5px;
+  }
+  .pt-btn:active:not(:disabled) {
+    transform: translateY(3px);
+    border-bottom-width: 2px;
+    margin-bottom: 3px;
+  }
 }
 
 /* The grown-up settings use a plain disclosure; hide the default triangle and show a word instead */
@@ -47,7 +54,87 @@ summary::-webkit-details-marker {
   display: none;
 }
 
+/* Long-pressing a pose on a phone shouldn't select text or open the iOS callout */
+.pt-hold {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.pt-scroll-x {
+  scrollbar-width: none;
+}
+.pt-scroll-x::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- motion ---------- */
+
+/* The character breathes slowly while she holds a pose */
+@keyframes pt-breathe {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.012, 1.022); }
+}
+.pt-breathe {
+  transform-origin: 100px 180px;
+  animation: pt-breathe 4.5s ease-in-out infinite;
+}
+
+/* A happy little jump when a pose is right */
+@keyframes pt-hop {
+  0%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-14%); }
+  55% { transform: translateY(0); }
+  70% { transform: translateY(-5%); }
+}
+.pt-hop { animation: pt-hop 0.9s ease-out; }
+
+/* Messages and countdown numbers pop in */
+@keyframes pt-pop {
+  0% { transform: scale(0.85); opacity: 0; }
+  60% { transform: scale(1.04); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.pt-pop { animation: pt-pop 0.35s ease-out; }
+
+/* The pose list drops down */
+@keyframes pt-drop {
+  from { transform: translateY(-12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.pt-drop { animation: pt-drop 0.22s ease-out; }
+
+/* Petals fly out of the flower when a pose is finished */
+@keyframes pt-petal {
+  0% { transform: rotate(var(--a)) translateY(0) scale(0.4); opacity: 1; }
+  100% { transform: rotate(var(--a)) translateY(-95px) scale(1); opacity: 0; }
+}
+.pt-petal { animation: pt-petal 1.1s ease-out forwards; }
+
+/* The star grows and turns in when it is earned */
+@keyframes pt-star-in {
+  0% { transform: scale(0) rotate(-120deg); }
+  70% { transform: scale(1.15) rotate(12deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+.pt-star-in { animation: pt-star-in 0.8s cubic-bezier(0.2, 0.9, 0.3, 1.2); }
+
+/* The star counter bumps when its number changes */
+@keyframes pt-bump {
+  0%, 100% { transform: scale(1); }
+  40% { transform: scale(1.35); }
+}
+.pt-bump { animation: pt-bump 0.6s ease-out; }
+
+/* A new flower in the progress row grows in */
+@keyframes pt-grow {
+  from { transform: scale(0) rotate(-90deg); }
+  to { transform: scale(1) rotate(0); }
+}
+.pt-grow { animation: pt-grow 0.5s ease-out; }
+
 @media (prefers-reduced-motion: reduce) {
-  .pt-breathe { animation: none; }
+  .pt-breathe, .pt-hop, .pt-pop, .pt-drop, .pt-petal, .pt-star-in, .pt-bump, .pt-grow { animation: none; }
+  .pt-petal { display: none; }
   * { transition-duration: 0.01ms !important; }
 }

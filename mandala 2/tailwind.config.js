@@ -6,24 +6,25 @@ module.exports = {
   ],
   theme: {
     extend: {
-      // Calm, earthy colours: warm oat paper, cream panels, moss green and a little clay
+      // A bright crayon box on warm cream paper. The paper colour is a CSS variable
+      // so it can turn golden on a three-star day (see globals.css).
       colors: {
-        paper: '#F1ECE2',
-        card: '#FAF6EE',
-        ink: '#2A3732',
-        muted: '#56635D',
-        line: '#D8D0C0',
-        pine: { DEFAULT: '#3D6956', dark: '#30574A', soft: '#E2E9DF' },
-        marigold: { DEFAULT: '#C9843D', soft: '#F2E3CD' },
-        rust: { DEFAULT: '#A24C33', soft: '#F2E1D8' },
+        paper: 'var(--paper)',
+        card: '#FFFAEF',
+        ink: '#21302B',
+        muted: '#4F5D57',
+        line: '#E7DCC6',
+        pine: { DEFAULT: '#23924A', dark: '#1A7339', soft: '#DDF3E3' },
+        sky: { DEFAULT: '#1C83D6', dark: '#1468AC', soft: '#DCEEFC' },
+        marigold: { DEFAULT: '#F4AE1A', dark: '#C98A07', soft: '#FFF0C4' },
+        rust: { DEFAULT: '#E5583B', dark: '#B9422A', soft: '#FDE2DA' },
       },
       fontFamily: {
-        sans: ['var(--font-lexend)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-lato)', 'Lato', '"Noto Sans"', 'Helvetica', 'sans-serif'],
       },
       borderRadius: {
-        // small, even corners everywhere
-        DEFAULT: '6px',
-        md: '6px',
+        DEFAULT: '8px',
+        md: '8px',
       },
     },
   },

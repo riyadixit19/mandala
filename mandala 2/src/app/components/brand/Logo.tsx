@@ -19,8 +19,8 @@ export function LogoMark({ className, strokeWidth = 3 }: { className?: string; s
 export function Wordmark({ className }: { className?: string }) {
   return (
     <span className={`inline-flex items-center gap-3 ${className ?? ''}`}>
-      <LogoMark className="h-10 w-10 text-pine" strokeWidth={3.4} />
-      <span className="text-3xl font-bold leading-none tracking-tight text-ink">Mandala</span>
+      <LogoMark className="h-10 w-10 text-rust" strokeWidth={3.6} />
+      <span className="text-3xl font-black leading-none tracking-tight text-ink max-[420px]:hidden">Mandala</span>
     </span>
   );
 }

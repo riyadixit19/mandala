@@ -14,10 +14,11 @@ import { matchPose, closestPose, MatchResult } from './utils/poseMatcher';
 import { PracticeSession, SessionView } from './utils/practiceSession';
 import CameraControls, { GrownUpSettings } from './components/CameraControls';
 import PosePanel from './components/PosePanel';
-import PoseLibrary from './components/PoseLibrary';
 import HelpModal from './components/HelpModal';
 import CoachMessage from './components/CoachMessage';
 import { Wordmark } from './components/brand/Logo';
+import { StarTracker, StarCelebration } from './components/Stars';
+import { addStar, POSES_PER_STAR } from './utils/stars';
 
 /** A detection result older than this is treated as "nobody in frame" */
 const STALE_FRAME_MS = 700;
@@ -29,7 +30,7 @@ const YogaPoseDetector: React.FC = () => {
   const smootherRef = useRef(new KeypointSmoother());
   const stabilizerRef = useRef(new PoseStabilizer());
   const sessionRef = useRef(new PracticeSession(CHECK_SECONDS * 1000, HOLD_SECONDS * 1000));
-  const targetRef = useRef<HTMLDivElement | null>(null);
+  const cameraRef = useRef<HTMLElement | null>(null);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
@@ -43,7 +44,10 @@ const YogaPoseDetector: React.FC = () => {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [confidenceLevel, setConfidenceLevel] = useState<ConfidenceLevel>('low');
   const [currentPose, setCurrentPose] = useState('Unknown');
-  const [poseCount, setPoseCount] = useState(0);
+  // different poses finished since the last star, and the star just earned (shows the celebration)
+  const [starPoses, setStarPoses] = useState<string[]>([]);
+  const starPosesRef = useRef<Set<string>>(new Set());
+  const [newStar, setNewStar] = useState<number | null>(null);
   const [posesData, setPosesData] = useState<PoseDataItem[]>([]);
   const [selectedPoseIndex, setSelectedPoseIndex] = useState<number | null>(null);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -195,11 +199,11 @@ const YogaPoseDetector: React.FC = () => {
     loadPoseModel(setIsLoading, setIsModelLoaded, setError, landmarkerRef);
   };
 
-  const handleSelectPose = (index: number) => {
+  // hold down / right-click in the pose list: pick the pose, start the camera and show it
+  const selectAndGo = (index: number) => {
     setSelectedPoseIndex(index);
-    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
-      targetRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    if (!isCameraOn && isModelLoaded && !isCameraLoading) startCamera();
+    if (window.innerWidth < 1024) cameraRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const nextPose = () => {
@@ -318,7 +322,14 @@ const YogaPoseDetector: React.FC = () => {
       if (events.includes('correct')) playSuccessSound(soundRef.current);
       if (events.includes('complete')) {
         playCompleteSound(soundRef.current);
-        setPoseCount(c => c + 1);
+        // a star for every ten different poses finished in this visit
+        const done = starPosesRef.current;
+        if (targetNameRef.current) done.add(targetNameRef.current);
+        if (done.size >= POSES_PER_STAR) {
+          done.clear();
+          setNewStar(addStar());
+        }
+        setStarPoses(Array.from(done));
       }
     }, 100);
     return () => window.clearInterval(id);
@@ -336,21 +347,24 @@ const YogaPoseDetector: React.FC = () => {
           <Link href="/" className="rounded-md" aria-label="Mandala home">
             <Wordmark />
           </Link>
-          <button
-            onClick={() => setIsHelpOpen(true)}
-            className="h-14 rounded-md border-2 border-line bg-card px-6 text-xl font-semibold text-ink hover:border-ink/40"
-          >
-            Help
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsHelpOpen(true)}
+              className="pt-btn h-14 rounded-md border-2 border-line bg-card px-5 text-xl font-bold text-ink"
+            >
+              Help
+            </button>
+            <StarTracker />
+          </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-7xl space-y-6 px-4 pb-10 sm:px-6">
         {error && (
-          <div role="alert" className="flex flex-wrap items-center gap-4 rounded-md border-2 border-rust/40 bg-rust-soft px-5 py-4 text-xl text-rust">
+          <div role="alert" className="flex flex-wrap items-center gap-4 rounded-md border-2 border-rust bg-rust-soft px-5 py-4 text-xl text-rust-dark">
             <p className="flex-1">{error}</p>
             {!isModelLoaded && !isLoading && (
-              <button onClick={() => reloadModel()} className="h-12 rounded-md border-2 border-rust/40 px-5 font-semibold hover:border-rust">
+              <button onClick={() => reloadModel()} className="pt-btn h-12 rounded-md border-2 border-rust-dark bg-rust px-5 font-bold text-white">
                 Try again
               </button>
             )}
@@ -358,8 +372,20 @@ const YogaPoseDetector: React.FC = () => {
         )}
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
-          <section aria-label="Camera" className="space-y-4">
-            <div className="relative overflow-hidden rounded-md bg-ink" style={{ aspectRatio: '4 / 3' }}>
+          <div className="lg:order-last">
+            <PosePanel
+              posesData={posesData}
+              selectedPoseIndex={selectedPoseIndex}
+              starProgress={starPoses.length}
+              view={sessionView}
+              onSelect={setSelectedPoseIndex}
+              onSelectAndGo={selectAndGo}
+              onNextPose={nextPose}
+            />
+          </div>
+
+          <section ref={cameraRef} aria-label="Camera" className="scroll-mt-4 space-y-4">
+            <div className="relative overflow-hidden rounded-md border-4 border-sky bg-ink" style={{ aspectRatio: '4 / 3' }}>
               <div
                 className="absolute inset-0"
                 style={{
@@ -374,14 +400,14 @@ const YogaPoseDetector: React.FC = () => {
 
               {!isCameraOn && (
                 <div className="absolute inset-0 flex items-center justify-center p-6 text-center">
-                  <p className="text-3xl font-semibold text-card/80 sm:text-4xl">
+                  <p className="text-3xl font-bold text-card/80 sm:text-4xl">
                     {isLoading ? 'Getting ready...' : isCameraLoading ? 'Starting...' : isModelLoaded ? 'Camera is off' : 'The camera helper is not working'}
                   </p>
                 </div>
               )}
 
               {isCameraOn && qualityScore > 0 && qualityScore < 55 && sessionView?.phase !== 'complete' && (
-                <span className="absolute left-4 top-4 rounded-md bg-ink/75 px-5 py-3 text-2xl font-semibold text-white">
+                <span className="pt-pop absolute left-4 top-4 rounded-md bg-marigold px-5 py-3 text-2xl font-black text-ink">
                   Step back a little
                 </span>
               )}
@@ -414,15 +440,6 @@ const YogaPoseDetector: React.FC = () => {
             />
           </section>
 
-          <div ref={targetRef} className="scroll-mt-4 lg:order-none">
-            <PosePanel
-              posesData={posesData}
-              selectedPoseIndex={selectedPoseIndex}
-              poseCount={poseCount}
-              view={sessionView}
-              onNextPose={nextPose}
-            />
-          </div>
         </div>
 
         <GrownUpSettings
@@ -441,14 +458,13 @@ const YogaPoseDetector: React.FC = () => {
           onConfidenceLevelChange={setConfidenceLevel}
         />
 
-        <PoseLibrary posesData={posesData} selectedPoseIndex={selectedPoseIndex} onSelectPose={handleSelectPose} />
-
         <footer className="pt-2 text-center text-lg text-muted">
           The camera picture stays on this device. Nothing is uploaded.
         </footer>
       </main>
 
       <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
+      {newStar !== null && <StarCelebration stars={newStar} onClose={() => setNewStar(null)} />}
     </div>
   );
 };

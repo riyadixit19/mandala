@@ -36,6 +36,8 @@ export const siteMetadata: Metadata = {
     apple: '/apple-touch-icon.png',
   },
   manifest: '/site.webmanifest',
+  // lets the app run full screen when added to a phone's home screen
+  appleWebApp: { capable: true, title: 'Mandala', statusBarStyle: 'default' },
   alternates: { canonical: SITE_URL },
   category: 'Health & Fitness',
 };

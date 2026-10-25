@@ -21,14 +21,14 @@ interface CameraControlsProps {
 }
 
 const smallBtn =
-  'h-14 min-w-[3.5rem] rounded-md border-2 border-line bg-card px-4 text-xl font-semibold text-ink hover:border-ink/40 disabled:cursor-not-allowed disabled:text-muted/50 disabled:hover:border-line';
+  'pt-btn h-14 min-w-[3.5rem] rounded-md border-2 border-line bg-card px-4 text-xl font-bold text-ink disabled:cursor-not-allowed disabled:text-muted/50';
 
 /** The big start/stop button */
 const CameraControls: React.FC<CameraControlsProps> = ({ isModelLoaded, isCameraOn, isCameraLoading, onStartCamera, onStopCamera }) => {
   return isCameraOn ? (
     <button
       onClick={onStopCamera}
-      className="h-20 w-full rounded-md border-2 border-line bg-card text-3xl font-semibold text-ink hover:border-ink/40"
+      className="pt-btn h-20 w-full rounded-md border-2 border-rust-dark bg-rust text-3xl font-black text-white"
     >
       Stop camera
     </button>
@@ -36,7 +36,7 @@ const CameraControls: React.FC<CameraControlsProps> = ({ isModelLoaded, isCamera
     <button
       onClick={() => onStartCamera()}
       disabled={!isModelLoaded || isCameraLoading}
-      className="h-20 w-full rounded-md bg-pine text-3xl font-semibold text-white hover:bg-pine-dark disabled:cursor-not-allowed disabled:bg-[#CFD6CC] disabled:text-muted"
+      className="pt-btn h-20 w-full rounded-md border-2 border-pine-dark bg-pine text-3xl font-black text-white disabled:cursor-not-allowed disabled:border-line disabled:bg-line disabled:text-muted"
     >
       {isCameraLoading ? 'Starting...' : 'Start camera'}
     </button>
@@ -57,7 +57,7 @@ export const GrownUpSettings: React.FC<CameraControlsProps> = ({
 }) => {
   return (
     <details className="group rounded-md border-2 border-line bg-card">
-      <summary className="flex cursor-pointer items-center justify-between gap-4 px-5 py-4 text-xl font-semibold text-ink">
+      <summary className="flex cursor-pointer items-center justify-between gap-4 px-5 py-4 text-xl font-bold text-ink">
         Settings for grown-ups
         <span className="text-lg font-normal text-muted group-open:hidden">Show</span>
         <span className="hidden text-lg font-normal text-muted group-open:inline">Hide</span>
@@ -65,7 +65,7 @@ export const GrownUpSettings: React.FC<CameraControlsProps> = ({
 
       <div className="space-y-6 border-t-2 border-line px-5 py-5">
         <div>
-          <p className="text-lg font-semibold text-ink" id="strictness-label">How close is close enough</p>
+          <p className="text-lg font-bold text-ink" id="strictness-label">How close is close enough</p>
           <div role="radiogroup" aria-labelledby="strictness-label" className="mt-2 grid grid-cols-3 gap-2">
             {(Object.keys(CONFIDENCE_PRESETS) as ConfidenceLevel[]).map(level => {
               const active = confidenceLevel === level;
@@ -75,8 +75,8 @@ export const GrownUpSettings: React.FC<CameraControlsProps> = ({
                   role="radio"
                   aria-checked={active}
                   onClick={() => onConfidenceLevelChange(level)}
-                  className={`h-14 rounded-md border-2 px-1 text-base font-semibold sm:text-lg ${
-                    active ? 'border-pine bg-pine text-white' : 'border-line bg-card text-ink hover:border-ink/40'
+                  className={`h-14 rounded-md border-2 px-1 text-base font-bold sm:text-lg ${
+                    active ? 'border-sky-dark bg-sky text-white' : 'border-line bg-card text-ink'
                   }`}
                 >
                   {STRICTNESS_LABELS[level].label}
@@ -89,7 +89,7 @@ export const GrownUpSettings: React.FC<CameraControlsProps> = ({
 
         <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
           <div>
-            <p className="text-lg font-semibold text-ink">Zoom</p>
+            <p className="text-lg font-bold text-ink">Zoom</p>
             <div className="mt-2 flex items-center gap-2">
               <button onClick={() => onZoom('out')} disabled={!isCameraOn || zoom <= ZOOM_LIMITS.min} className={smallBtn} aria-label="Zoom out">
                 -
@@ -104,14 +104,14 @@ export const GrownUpSettings: React.FC<CameraControlsProps> = ({
           </div>
 
           <div>
-            <p className="text-lg font-semibold text-ink">Camera</p>
+            <p className="text-lg font-bold text-ink">Camera</p>
             <button onClick={onSwitchCamera} disabled={!isCameraOn} className={`${smallBtn} mt-2`}>
               Switch camera
             </button>
           </div>
 
           <div>
-            <p className="text-lg font-semibold text-ink">Sound</p>
+            <p className="text-lg font-bold text-ink">Sound</p>
             <button onClick={onToggleSound} aria-pressed={soundEnabled} className={`${smallBtn} mt-2`}>
               {soundEnabled ? 'Sound on' : 'Sound off'}
             </button>
@@ -119,7 +119,7 @@ export const GrownUpSettings: React.FC<CameraControlsProps> = ({
         </div>
 
         <p className="text-lg text-muted">
-          Camera sees: <span className="font-semibold text-ink">{!isCameraOn ? 'camera off' : seenPose ?? 'nothing yet'}</span>
+          Camera sees: <span className="font-bold text-ink">{!isCameraOn ? 'camera off' : seenPose ?? 'nothing yet'}</span>
         </p>
       </div>
     </details>

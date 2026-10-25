@@ -35,7 +35,7 @@ export const DETECTION_THRESHOLDS = {
 export const SKELETON_SETTINGS = {
   detectedLine: 'rgba(255, 255, 255, 0.92)',
   searchingLine: 'rgba(255, 255, 255, 0.5)',
-  detectedJoint: '#C9843D',
+  detectedJoint: '#F4AE1A',
   searchingJoint: 'rgba(255, 255, 255, 0.75)',
 };
 

@@ -1,25 +1,27 @@
 // src/app/layout.tsx
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
-import { Lexend } from 'next/font/google';
+import { Lato } from 'next/font/google';
 import { siteMetadata, jsonLdData } from './metadata';
+import { DayTheme } from './components/Stars';
 import './globals.css';
 
-// Lexend was designed to make reading easier, which suits young readers
-const lexend = Lexend({ subsets: ['latin'], variable: '--font-lexend', display: 'swap' });
+// Lato, the typeface Khan Academy uses across its site
+const lato = Lato({ subsets: ['latin'], weight: ['400', '700', '900'], variable: '--font-lato', display: 'swap' });
 
 export const metadata: Metadata = siteMetadata;
 
 export const viewport: Viewport = {
-  themeColor: '#F1ECE2',
+  themeColor: '#FFF6E5',
   width: 'device-width',
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={lexend.variable}>
+    <html lang="en" className={lato.variable}>
       <body className="font-sans antialiased">
+        <DayTheme />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
