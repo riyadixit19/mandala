@@ -35,7 +35,7 @@ export const DETECTION_THRESHOLDS = {
 export const SKELETON_SETTINGS = {
   detectedLine: 'rgba(255, 255, 255, 0.92)',
   searchingLine: 'rgba(255, 255, 255, 0.5)',
-  detectedJoint: '#E39B3A',
+  detectedJoint: '#C9843D',
   searchingJoint: 'rgba(255, 255, 255, 0.75)',
 };
 
@@ -57,7 +57,7 @@ export const SOUND_SETTINGS = {
 
 // Friendly labels for the strictness control
 export const STRICTNESS_LABELS: Record<ConfidenceLevel, { label: string; hint: string }> = {
-  low: { label: 'Relaxed', hint: 'Close enough counts. Good for beginners and kids.' },
+  low: { label: 'Relaxed', hint: 'Close enough counts. The best place to start for most children.' },
   medium: { label: 'Standard', hint: 'Your shape should clearly match the pose.' },
   high: { label: 'Strict', hint: 'Every joint needs to be close to the picture.' },
 };

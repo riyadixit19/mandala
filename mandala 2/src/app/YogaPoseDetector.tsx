@@ -2,9 +2,8 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { CircleHelp, AlertCircle, RotateCw } from 'lucide-react';
 import { Keypoint, PoseDataItem } from './types/yoga.types';
-import { POSES_JSON_PATH, CONFIDENCE_PRESETS, ConfidenceLevel, CHECK_SECONDS, HOLD_SECONDS } from './constants/yoga.constants';
+import { POSES_JSON_PATH, CONFIDENCE_PRESETS, ConfidenceLevel, CHECK_SECONDS, HOLD_SECONDS, isRealPose } from './constants/yoga.constants';
 import { loadPoseModel, loadPosesData } from './utils/dataLoader';
 import { drawSkeleton } from './utils/skeletonDrawer';
 import { playSuccessSound, playCompleteSound, unlockAudio } from './utils/soundUtils';
@@ -13,12 +12,12 @@ import { PoseStabilizer } from './utils/poseStabilizer';
 import { calculatePoseQuality } from './utils/scaleInvariant';
 import { matchPose, closestPose, MatchResult } from './utils/poseMatcher';
 import { PracticeSession, SessionView } from './utils/practiceSession';
-import CameraControls from './components/CameraControls';
+import CameraControls, { GrownUpSettings } from './components/CameraControls';
 import PosePanel from './components/PosePanel';
 import PoseLibrary from './components/PoseLibrary';
 import HelpModal from './components/HelpModal';
-import SessionOverlay from './components/SessionOverlay';
-import { LogoMark, Wordmark } from './components/brand/Logo';
+import CoachMessage from './components/CoachMessage';
+import { Wordmark } from './components/brand/Logo';
 
 /** A detection result older than this is treated as "nobody in frame" */
 const STALE_FRAME_MS = 700;
@@ -205,7 +204,12 @@ const YogaPoseDetector: React.FC = () => {
 
   const nextPose = () => {
     if (!posesData.length) return;
-    setSelectedPoseIndex(i => (i === null ? 0 : (i + 1) % posesData.length));
+    setSelectedPoseIndex(i => {
+      let next = i === null ? 0 : (i + 1) % posesData.length;
+      // skip the placeholder entry the library hides
+      if (!isRealPose(posesData[next]?.name ?? '')) next = (next + 1) % posesData.length;
+      return next;
+    });
   };
 
   // Detection loop: runs once per camera session
@@ -323,53 +327,44 @@ const YogaPoseDetector: React.FC = () => {
   const mirrored = facingMode === 'user';
   const cssZoom = hardwareZoom ? 1 : zoom;
 
-  return (
-    <div className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-[#F6F9F5] via-[#E6EFE8] to-[#D2E3D8] text-ink">
-      {/* the flower, very large and faint, behind everything */}
-      <LogoMark
-        className="pointer-events-none fixed -right-48 -top-48 h-[40rem] w-[40rem] text-pine/[0.06]"
-        strokeWidth={0.9}
-      />
+  const seenPose = isRealPose(currentPose) ? currentPose.split('(')[0].trim() : null;
 
-      <header className="relative">
-        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-          <Link href="/" className="rounded-lg" aria-label="Mandala home">
+  return (
+    <div className="min-h-screen overflow-x-hidden bg-paper text-ink">
+      <header>
+        <div className="mx-auto flex h-24 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
+          <Link href="/" className="rounded-md" aria-label="Mandala home">
             <Wordmark />
           </Link>
           <button
             onClick={() => setIsHelpOpen(true)}
-            className="inline-flex h-10 items-center gap-2 rounded-full bg-white/60 px-4 text-sm font-medium text-ink backdrop-blur hover:bg-white transition-colors"
+            className="h-14 rounded-md border-2 border-line bg-card px-6 text-xl font-semibold text-ink hover:border-ink/40"
           >
-            <CircleHelp size={18} />
-            <span className="hidden sm:inline">How it works</span>
+            Help
           </button>
         </div>
       </header>
 
-      <main className="relative mx-auto max-w-7xl space-y-6 px-4 pb-8 pt-2 sm:px-6">
+      <main className="mx-auto max-w-7xl space-y-6 px-4 pb-10 sm:px-6">
         {error && (
-          <div role="alert" className="flex flex-wrap items-center gap-3 rounded-2xl bg-rust-soft/90 px-5 py-3.5 text-[15px] text-rust">
-            <AlertCircle size={18} className="shrink-0" />
+          <div role="alert" className="flex flex-wrap items-center gap-4 rounded-md border-2 border-rust/40 bg-rust-soft px-5 py-4 text-xl text-rust">
             <p className="flex-1">{error}</p>
             {!isModelLoaded && !isLoading && (
-              <button onClick={() => reloadModel()} className="inline-flex items-center gap-1.5 font-semibold underline-offset-2 hover:underline">
-                <RotateCw size={15} />
-                Reload model
+              <button onClick={() => reloadModel()} className="h-12 rounded-md border-2 border-rust/40 px-5 font-semibold hover:border-rust">
+                Try again
               </button>
             )}
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-          {/* Camera */}
-          <section aria-label="Camera" className="pt-card p-2">
-            <div className="relative overflow-hidden rounded-[1.35rem] bg-ink" style={{ aspectRatio: '4 / 3' }}>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
+          <section aria-label="Camera" className="space-y-4">
+            <div className="relative overflow-hidden rounded-md bg-ink" style={{ aspectRatio: '4 / 3' }}>
               <div
                 className="absolute inset-0"
                 style={{
                   transform: `scale(${(mirrored ? -1 : 1) * cssZoom}, ${cssZoom})`,
                   transformOrigin: 'center center',
-                  transition: 'transform 0.2s ease-out',
                 }}
               >
                 <video ref={videoRef} className="h-full w-full object-cover" playsInline muted />
@@ -378,54 +373,29 @@ const YogaPoseDetector: React.FC = () => {
               </div>
 
               {!isCameraOn && (
-                <div className="absolute inset-0 flex items-center justify-center p-6">
-                  <div className="max-w-sm text-center">
-                    {isLoading || isCameraLoading ? (
-                      <>
-                        <span className="mx-auto mb-4 block h-6 w-6 rounded-full border-2 border-white/20 border-t-white animate-spin" aria-hidden />
-                        <p className="font-display text-2xl text-white sm:text-3xl">{isLoading ? 'Loading the pose tracker' : 'Starting camera'}</p>
-                        <p className="mt-2 text-[15px] text-white/60">
-                          {isLoading ? 'This takes a few seconds the first time.' : 'Allow camera access if your browser asks.'}
-                        </p>
-                      </>
-                    ) : isModelLoaded ? (
-                      <>
-                        <p className="font-display text-3xl text-white sm:text-4xl">Ready when you are</p>
-                        <p className="mt-2 text-[15px] leading-relaxed text-white/65">
-                          {targetName
-                            ? 'Start the camera below, then step back until your whole body is in the frame.'
-                            : 'Pick a pose from the library, then start the camera below.'}
-                        </p>
-                      </>
-                    ) : (
-                      <p className="text-[15px] text-white/60">The pose tracker isn&apos;t available.</p>
-                    )}
-                  </div>
+                <div className="absolute inset-0 flex items-center justify-center p-6 text-center">
+                  <p className="text-3xl font-semibold text-card/80 sm:text-4xl">
+                    {isLoading ? 'Getting ready...' : isCameraLoading ? 'Starting...' : isModelLoaded ? 'Camera is off' : 'The camera helper is not working'}
+                  </p>
                 </div>
               )}
 
-              {isCameraOn && targetName && (
-                <span className="absolute left-4 top-4 rounded-full bg-ink/50 px-3.5 py-1.5 text-sm font-medium text-white backdrop-blur">
-                  {targetName}
-                </span>
-              )}
-
               {isCameraOn && qualityScore > 0 && qualityScore < 55 && sessionView?.phase !== 'complete' && (
-                <span className="absolute right-4 top-4 rounded-full bg-ink/50 px-3.5 py-1.5 text-sm text-white backdrop-blur">
+                <span className="absolute left-4 top-4 rounded-md bg-ink/75 px-5 py-3 text-2xl font-semibold text-white">
                   Step back a little
                 </span>
               )}
-
-              {isCameraOn && (
-                <SessionOverlay
-                  view={sessionView}
-                  targetName={targetName}
-                  threshold={threshold}
-                  onRestart={resetSession}
-                  onNextPose={nextPose}
-                />
-              )}
             </div>
+
+            <CoachMessage
+              view={sessionView}
+              targetName={targetName}
+              threshold={threshold}
+              isCameraOn={isCameraOn}
+              isReady={isModelLoaded}
+              onRestart={resetSession}
+              onNextPose={nextPose}
+            />
 
             <CameraControls
               isModelLoaded={isModelLoaded}
@@ -434,6 +404,7 @@ const YogaPoseDetector: React.FC = () => {
               soundEnabled={soundEnabled}
               zoom={zoom}
               confidenceLevel={confidenceLevel}
+              seenPose={seenPose}
               onStartCamera={startCamera}
               onStopCamera={stopCamera}
               onSwitchCamera={switchCamera}
@@ -443,23 +414,37 @@ const YogaPoseDetector: React.FC = () => {
             />
           </section>
 
-          <div ref={targetRef} className="scroll-mt-4">
+          <div ref={targetRef} className="scroll-mt-4 lg:order-none">
             <PosePanel
               posesData={posesData}
               selectedPoseIndex={selectedPoseIndex}
-              currentPose={currentPose}
               poseCount={poseCount}
-              isCameraOn={isCameraOn}
               view={sessionView}
+              onNextPose={nextPose}
             />
           </div>
         </div>
 
+        <GrownUpSettings
+          isModelLoaded={isModelLoaded}
+          isCameraOn={isCameraOn}
+          isCameraLoading={isCameraLoading}
+          soundEnabled={soundEnabled}
+          zoom={zoom}
+          confidenceLevel={confidenceLevel}
+          seenPose={seenPose}
+          onStartCamera={startCamera}
+          onStopCamera={stopCamera}
+          onSwitchCamera={switchCamera}
+          onToggleSound={() => setSoundEnabled(s => !s)}
+          onZoom={handleZoom}
+          onConfidenceLevelChange={setConfidenceLevel}
+        />
+
         <PoseLibrary posesData={posesData} selectedPoseIndex={selectedPoseIndex} onSelectPose={handleSelectPose} />
 
-        <footer className="flex items-center justify-center gap-2 pt-2 text-sm text-muted">
-          <LogoMark className="h-4 w-4 text-pine/70" strokeWidth={5} />
-          Pose tracking runs in your browser. Your camera video is not uploaded.
+        <footer className="pt-2 text-center text-lg text-muted">
+          The camera picture stays on this device. Nothing is uploaded.
         </footer>
       </main>
 

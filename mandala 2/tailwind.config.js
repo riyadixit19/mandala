@@ -6,18 +6,24 @@ module.exports = {
   ],
   theme: {
     extend: {
+      // Calm, earthy colours: warm oat paper, cream panels, moss green and a little clay
       colors: {
-        paper: '#F3F4F0',
-        ink: '#1D2A26',
-        muted: '#5E6B66',
-        line: '#DDE1DA',
-        pine: { DEFAULT: '#2F5D50', dark: '#24493F', soft: '#E3ECE8' },
-        marigold: { DEFAULT: '#E39B3A', soft: '#FBEEDB' },
-        rust: { DEFAULT: '#A8432F', soft: '#F6E4DF' },
+        paper: '#F1ECE2',
+        card: '#FAF6EE',
+        ink: '#2A3732',
+        muted: '#56635D',
+        line: '#D8D0C0',
+        pine: { DEFAULT: '#3D6956', dark: '#30574A', soft: '#E2E9DF' },
+        marigold: { DEFAULT: '#C9843D', soft: '#F2E3CD' },
+        rust: { DEFAULT: '#A24C33', soft: '#F2E1D8' },
       },
       fontFamily: {
-        sans: ['var(--font-figtree)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        display: ['var(--font-display)', 'Georgia', 'serif'],
+        sans: ['var(--font-lexend)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
+      borderRadius: {
+        // small, even corners everywhere
+        DEFAULT: '6px',
+        md: '6px',
       },
     },
   },

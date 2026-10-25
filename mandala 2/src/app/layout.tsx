@@ -1,30 +1,24 @@
 // src/app/layout.tsx
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
-import { Figtree, Instrument_Serif } from 'next/font/google';
+import { Lexend } from 'next/font/google';
 import { siteMetadata, jsonLdData } from './metadata';
 import './globals.css';
 
-const figtree = Figtree({ subsets: ['latin'], variable: '--font-figtree', display: 'swap' });
-const instrumentSerif = Instrument_Serif({
-  subsets: ['latin'],
-  weight: '400',
-  style: ['normal', 'italic'],
-  variable: '--font-display',
-  display: 'swap',
-});
+// Lexend was designed to make reading easier, which suits young readers
+const lexend = Lexend({ subsets: ['latin'], variable: '--font-lexend', display: 'swap' });
 
 export const metadata: Metadata = siteMetadata;
 
 export const viewport: Viewport = {
-  themeColor: '#F3F4F0',
+  themeColor: '#F1ECE2',
   width: 'device-width',
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${figtree.variable} ${instrumentSerif.variable}`}>
+    <html lang="en" className={lexend.variable}>
       <body className="font-sans antialiased">
         <script
           type="application/ld+json"

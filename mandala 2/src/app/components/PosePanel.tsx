@@ -1,8 +1,7 @@
 // components/PosePanel.tsx
+// The pose to copy: a big picture, its name, one short line about it, and the flowers earned so far.
 import React from 'react';
-import { Check } from 'lucide-react';
 import { PoseDataItem } from '../types/yoga.types';
-import { isRealPose, CHECK_SECONDS, HOLD_SECONDS } from '../constants/yoga.constants';
 import { SessionView } from '../utils/practiceSession';
 import PoseFigure from '../figure/PoseFigure';
 import { NEUTRAL_POSE } from '../figure/poseRig';
@@ -11,81 +10,64 @@ import { LogoMark } from './brand/Logo';
 interface PosePanelProps {
   posesData: PoseDataItem[];
   selectedPoseIndex: number | null;
-  currentPose: string;
   poseCount: number;
-  isCameraOn: boolean;
   view: SessionView | null;
+  onNextPose: () => void;
 }
 
-const STEPS = [
-  { id: 'check', label: `Hold for ${CHECK_SECONDS} seconds` },
-  { id: 'verdict', label: 'Form check' },
-  { id: 'hold', label: `${HOLD_SECONDS}-second timer` },
-] as const;
-
-function stepState(view: SessionView | null, step: (typeof STEPS)[number]['id']): 'done' | 'active' | 'todo' {
-  const p = view?.phase;
-  const order = { check: 0, verdict: 1, hold: 2 }[step];
-  const at =
-    p === 'checking' || p === 'waiting' || !p ? 0
-    : p === 'incorrect' || p === 'correct' ? 1
-    : p === 'holding' || p === 'paused' ? 2
-    : 3; // complete
-  if (p === 'correct' && step === 'verdict') return 'done';
-  return order < at ? 'done' : order === at ? 'active' : 'todo';
+/** One flower per finished pose; after ten, a number keeps the row short */
+function Flowers({ count }: { count: number }) {
+  const shown = Math.min(count, 10);
+  return (
+    <div>
+      <p className="text-xl text-muted">Poses finished</p>
+      <div className="mt-2 flex min-h-[2.75rem] flex-wrap items-center gap-2" aria-label={`${count} poses finished`}>
+        {count === 0 ? (
+          <span className="text-xl text-muted">None yet</span>
+        ) : (
+          <>
+            {Array.from({ length: shown }, (_, i) => (
+              <LogoMark key={i} className="h-11 w-11 text-marigold" strokeWidth={4.5} />
+            ))}
+            {count > shown && <span className="text-2xl font-bold text-ink">{count}</span>}
+          </>
+        )}
+      </div>
+    </div>
+  );
 }
 
-const PosePanel: React.FC<PosePanelProps> = ({ posesData, selectedPoseIndex, currentPose, poseCount, isCameraOn, view }) => {
+const PosePanel: React.FC<PosePanelProps> = ({ posesData, selectedPoseIndex, poseCount, view, onNextPose }) => {
   const target = selectedPoseIndex !== null ? posesData[selectedPoseIndex] : undefined;
-  const seen = isRealPose(currentPose) ? currentPose.split('(')[0].trim() : null;
   const holding = view?.phase === 'holding' || view?.phase === 'complete';
 
   return (
-    <aside aria-labelledby="target-heading" className={`pt-card p-2 transition-shadow ${holding ? 'ring-2 ring-pine/60' : ''}`}>
-      {/* Target */}
-      <div className="relative overflow-hidden rounded-[1.35rem] bg-gradient-to-b from-[#EEF5F0] to-[#DCEAE1]">
-        <LogoMark className="pointer-events-none absolute -right-12 -top-12 h-52 w-52 text-pine/[0.08]" strokeWidth={1.4} />
-        <LogoMark className="pointer-events-none absolute -bottom-16 -left-14 h-44 w-44 text-pine/[0.07]" strokeWidth={1.4} />
-        <PoseFigure pose={target?.name ?? NEUTRAL_POSE} animate className="relative mx-auto block w-full max-w-[300px] aspect-square" />
+    <aside
+      aria-labelledby="target-heading"
+      className={`rounded-md border-2 bg-card p-5 sm:p-6 ${holding ? 'border-pine' : 'border-line'}`}
+    >
+      <div className="rounded-md bg-pine-soft">
+        <PoseFigure pose={target?.name ?? NEUTRAL_POSE} animate className="mx-auto block aspect-square w-full max-w-[340px]" />
       </div>
 
-      <div className="px-4 pb-4 pt-5">
-        <h2 id="target-heading" className="font-display text-[2rem] leading-tight text-ink">
-          {target ? target.name : 'Choose a pose'}
-        </h2>
-        <p className="mt-1.5 text-[15px] leading-relaxed text-muted">
-          {target ? target.description : 'Pick one from the library below and she will show you how it looks.'}
-        </p>
+      <h2 id="target-heading" className="mt-5 text-4xl font-bold leading-tight text-ink sm:text-5xl">
+        {target ? target.name : 'Pick a pose'}
+      </h2>
+      <p className="mt-3 text-xl leading-relaxed text-muted sm:text-2xl">
+        {target ? target.description : 'Choose a picture below and she will show you how.'}
+      </p>
 
-        {/* Progress through the practice */}
-        <ol className="mt-6 space-y-3 border-t border-ink/[0.07] pt-5">
-          {STEPS.map((s, i) => {
-            const st = target && isCameraOn ? stepState(view, s.id) : 'todo';
-            return (
-              <li key={s.id} className="flex items-center gap-3">
-                <span
-                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
-                    st === 'done' ? 'bg-pine text-white' : st === 'active' ? 'bg-pine/15 text-pine ring-1 ring-pine/40' : 'bg-ink/[0.05] text-muted'
-                  }`}
-                >
-                  {st === 'done' ? <Check size={13} strokeWidth={3} /> : i + 1}
-                </span>
-                <span className={`text-[15px] ${st === 'todo' ? 'text-muted' : 'font-medium text-ink'}`}>{s.label}</span>
-              </li>
-            );
-          })}
-        </ol>
+      {target && (
+        <button
+          onClick={onNextPose}
+          className="mt-5 h-16 w-full rounded-md border-2 border-line bg-card text-2xl font-semibold text-ink hover:border-ink/40"
+        >
+          Next pose
+        </button>
+      )}
 
-        <dl className="mt-5 grid grid-cols-2 gap-4 border-t border-ink/[0.07] pt-5">
-          <div>
-            <dt className="text-sm text-muted">Camera sees</dt>
-            <dd className="mt-0.5 font-semibold text-ink">{!isCameraOn ? 'Camera off' : seen ?? 'Nothing yet'}</dd>
-          </div>
-          <div>
-            <dt className="text-sm text-muted">Poses completed</dt>
-            <dd className="mt-0.5 font-semibold tabular-nums text-ink">{poseCount}</dd>
-          </div>
-        </dl>
+      <div className="mt-6 border-t-2 border-line pt-5">
+        <Flowers count={poseCount} />
       </div>
     </aside>
   );

@@ -1,6 +1,5 @@
 // components/PoseLibrary.tsx
 import React, { useMemo, useState } from 'react';
-import { Search } from 'lucide-react';
 import { PoseDataItem } from '../types/yoga.types';
 import { POSE_CATEGORIES } from '../constants/yoga.constants';
 import PoseFigure from '../figure/PoseFigure';
@@ -26,26 +25,22 @@ const PoseLibrary: React.FC<PoseLibraryProps> = ({ posesData, selectedPoseIndex,
   }, [posesData, query, category]);
 
   return (
-    <section id="library" aria-labelledby="library-heading" className="pt-card">
-      <div className="flex flex-col gap-4 px-6 pt-6 md:flex-row md:items-end md:justify-between">
-        <div>
-          <h2 id="library-heading" className="font-display text-[1.9rem] leading-tight text-ink">Pose library</h2>
-          <p className="mt-1 text-[15px] text-muted">Choose the pose you want to practise.</p>
-        </div>
-        <label className="relative block md:w-72">
-          <span className="sr-only">Search poses</span>
-          <Search size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
+    <section id="library" aria-labelledby="library-heading" className="rounded-md border-2 border-line bg-card">
+      <div className="flex flex-col gap-4 px-5 pt-6 sm:px-6 md:flex-row md:items-end md:justify-between">
+        <h2 id="library-heading" className="text-4xl font-bold leading-tight text-ink">Pick a pose</h2>
+        <label className="block md:w-80">
+          <span className="sr-only">Find a pose</span>
           <input
             type="search"
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="Search poses"
-            className="h-11 w-full rounded-full border border-transparent bg-white/80 pl-10 pr-4 text-[15px] text-ink shadow-[inset_0_0_0_1px_#DDE1DA] placeholder:text-muted focus:border-pine focus:outline-none"
+            placeholder="Find a pose"
+            className="h-14 w-full rounded-md border-2 border-line bg-paper px-4 text-xl text-ink placeholder:text-muted focus:border-pine focus:outline-none"
           />
         </label>
       </div>
 
-      <div className="pt-scroll-x mt-5 flex gap-2 overflow-x-auto px-6 pb-1" role="tablist" aria-label="Pose categories">
+      <div className="pt-scroll-x mt-5 flex gap-2 overflow-x-auto px-5 pb-1 sm:px-6" role="tablist" aria-label="Kinds of poses">
         {POSE_CATEGORIES.map(c => {
           const active = c.id === category;
           return (
@@ -54,8 +49,8 @@ const PoseLibrary: React.FC<PoseLibraryProps> = ({ posesData, selectedPoseIndex,
               role="tab"
               aria-selected={active}
               onClick={() => setCategory(c.id)}
-              className={`h-9 shrink-0 rounded-full px-4 text-sm font-medium transition-colors ${
-                active ? 'bg-pine text-white' : 'bg-white/70 text-ink hover:bg-white'
+              className={`h-14 shrink-0 rounded-md border-2 px-5 text-xl font-semibold ${
+                active ? 'border-pine bg-pine text-white' : 'border-line bg-paper text-ink hover:border-ink/40'
               }`}
             >
               {c.name}
@@ -65,11 +60,11 @@ const PoseLibrary: React.FC<PoseLibraryProps> = ({ posesData, selectedPoseIndex,
       </div>
 
       {items.length === 0 ? (
-        <p className="px-6 py-12 text-center text-muted">
-          No poses match “{query}”. Try a different word, or clear the search.
+        <p className="px-6 py-14 text-center text-2xl text-muted">
+          No poses called &quot;{query}&quot;. Try another word.
         </p>
       ) : (
-        <ul className="grid grid-cols-3 gap-2 p-4 sm:grid-cols-4 sm:p-5 md:grid-cols-6 xl:grid-cols-8">
+        <ul className="grid grid-cols-2 gap-3 p-5 sm:grid-cols-3 sm:gap-4 sm:p-6 lg:grid-cols-4 xl:grid-cols-5">
           {items.map(({ pose, index }) => {
             const selected = selectedPoseIndex === index;
             return (
@@ -77,12 +72,12 @@ const PoseLibrary: React.FC<PoseLibraryProps> = ({ posesData, selectedPoseIndex,
                 <button
                   onClick={() => onSelectPose(index)}
                   aria-pressed={selected}
-                  className={`group flex w-full flex-col items-center rounded-2xl p-2 pb-3 text-center transition-colors ${
-                    selected ? 'bg-[#E3EEE6] shadow-[inset_0_0_0_2px_#2F5D50]' : 'hover:bg-white/80'
+                  className={`flex w-full flex-col items-center rounded-md border-2 p-3 pb-4 text-center ${
+                    selected ? 'border-pine bg-pine-soft' : 'border-line bg-paper hover:border-ink/40'
                   }`}
                 >
-                  <PoseFigure pose={pose.name} showGround={false} decorative className="block w-full aspect-square" />
-                  <span className="mt-1 text-[13px] font-medium leading-snug text-ink">{pose.name}</span>
+                  <PoseFigure pose={pose.name} showGround={false} decorative className="block aspect-square w-full" />
+                  <span className="mt-2 text-xl font-semibold leading-snug text-ink">{pose.name}</span>
                 </button>
               </li>
             );

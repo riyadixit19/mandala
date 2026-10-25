@@ -111,12 +111,13 @@ function hintFor(f: Feature, ref: number): string {
   const side = f.side ? `${f.side} ` : '';
   const tooSmall = f.value < ref;
   switch (f.kind) {
-    case 'knee': return tooSmall ? `Straighten your ${side}knee` : `Bend your ${side}knee more`;
-    case 'elbow': return tooSmall ? `Straighten your ${side}arm` : `Bend your ${side}elbow more`;
-    case 'shoulder': return tooSmall ? `Raise your ${side}arm higher` : `Lower your ${side}arm a little`;
-    case 'thigh': return tooSmall ? `Lift your ${side}leg higher` : `Lower your ${side}leg a little`;
-    case 'hip': return tooSmall ? `Open up at your ${side}hip` : `Fold deeper at your ${side}hip`;
-    case 'torso': return tooSmall ? 'Tilt your body further, like the picture' : 'Bring your body more upright';
+    // short, simple words: these are read by children, in big letters
+    case 'knee': return tooSmall ? `Make your ${side}leg straight` : `Bend your ${side}knee more`;
+    case 'elbow': return tooSmall ? `Make your ${side}arm straight` : `Bend your ${side}arm`;
+    case 'shoulder': return tooSmall ? `Lift your ${side}arm up` : `Bring your ${side}arm down`;
+    case 'thigh': return tooSmall ? `Lift your ${side}leg up` : `Bring your ${side}leg down`;
+    case 'hip': return tooSmall ? 'Lift your chest up a little' : 'Bend over a little more';
+    case 'torso': return tooSmall ? 'Lean over like the picture' : 'Stand up taller';
   }
 }
 
