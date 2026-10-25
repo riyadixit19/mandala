@@ -8,12 +8,13 @@ const C = {
   skin: '#F1C7A3',
   skinFar: '#DDAE89',
   hair: '#3A2A22',
-  top: '#E39B3A',
-  topFar: '#C9822A',
-  leg: '#2F5D50',
-  legFar: '#234A3F',
+  top: '#E58F87',
+  topFar: '#CC7A73',
+  leg: '#7E8DD9',
+  legFar: '#6A79C4',
   cheek: '#EE9F96',
-  shadow: '#1D2A26',
+  mat: '#F2D4CF',
+  matRoll: '#E58F87',
 };
 
 const W = { torso: 19, pelvis: 10, sleeve: 10.5, arm: 7.2, leg: 11, neck: 7 };
@@ -147,12 +148,14 @@ interface PoseFigureProps {
   showGround?: boolean;
   /** hide from screen readers when a visible label already names the pose */
   decorative?: boolean;
+  /** crop the picture, e.g. to show just her face as an avatar */
+  viewBox?: string;
 }
 
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
 /** The illustrated character. With `animate`, she breathes and flows into each new pose. */
-export default function PoseFigure({ pose, animate = false, className, title, showGround = true, decorative = false }: PoseFigureProps) {
+export default function PoseFigure({ pose, animate = false, className, title, showGround = true, decorative = false, viewBox = '0 0 200 200' }: PoseFigureProps) {
   const [joints, setJoints] = useState<Joints>(() => jointsFor(pose));
   const current = useRef<Joints>(joints);
   const raf = useRef<number>(0);
@@ -183,11 +186,18 @@ export default function PoseFigure({ pose, animate = false, className, title, sh
 
   return (
     <svg
-      viewBox="0 0 200 200"
+      viewBox={viewBox}
       className={className}
       {...(decorative ? { 'aria-hidden': true } : { role: 'img', 'aria-label': title ?? pose })}
     >
-      {showGround && <ellipse cx="100" cy="181" rx="62" ry="4.5" fill={C.shadow} opacity="0.07" />}
+      {/* her yoga mat, with one end still rolled up */}
+      {showGround && (
+        <g>
+          <rect x="34" y="178.5" width="136" height="6" rx="3" fill={C.mat} />
+          <circle cx="34" cy="179.5" r="5.5" fill={C.matRoll} />
+          <circle cx="34" cy="179.5" r="2.2" fill={C.mat} />
+        </g>
+      )}
       <g className={animate ? 'pt-breathe' : undefined}>
         <FigureDrawing j={joints} />
       </g>

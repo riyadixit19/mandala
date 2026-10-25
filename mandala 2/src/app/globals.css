@@ -2,31 +2,66 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Larger base size: every rem-based size in the app grows with it, so text is easy to read */
 html {
-  background: #F3F4F0;
-  color: #1D2A26;
+  --paper: #F4F1EB;
+  font-size: 112.5%;
+  background: var(--paper);
+  color: #2B2E35;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Three stars in one day: the whole page turns golden */
+html[data-day='gold'] {
+  --paper: #F8ECBE;
 }
 
 body {
   min-height: 100vh;
+  background: var(--paper);
+  transition: background-color 1.2s ease;
+}
+
+/* no double-tap zoom delay on buttons */
+button, a, summary {
+  touch-action: manipulation;
 }
 
 :focus-visible {
-  outline: 2px solid #2F5D50;
-  outline-offset: 2px;
+  outline: 3px solid #2B2E35;
+  outline-offset: 3px;
 }
 
-/* The character breathes slowly while she holds a pose */
-@keyframes pt-breathe {
-  0%, 100% { transform: scale(1, 1); }
-  50% { transform: scale(1.012, 1.022); }
+/* Fraunces at its softest and most playful */
+.font-display {
+  font-variation-settings: 'SOFT' 100, 'WONK' 1;
 }
 
-.pt-breathe {
-  transform-origin: 100px 180px;
-  animation: pt-breathe 4.5s ease-in-out infinite;
+/* Buttons squeeze a little when pressed */
+@layer components {
+  .pt-btn {
+    transition: transform 0.1s ease-out;
+  }
+  .pt-btn:active:not(:disabled) {
+    transform: scale(0.96);
+  }
+}
+
+/* The grown-up settings use a plain disclosure; hide the default triangle and show a word instead */
+summary {
+  list-style: none;
+}
+summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Long-pressing a pose on a phone shouldn't select text or open the iOS callout */
+.pt-hold {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .pt-scroll-x {
@@ -36,39 +71,73 @@ body {
   display: none;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .pt-breathe { animation: none; }
-  * { transition-duration: 0.01ms !important; }
+/* ---------- motion ---------- */
+
+/* The character breathes slowly while she holds a pose */
+@keyframes pt-breathe {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.012, 1.022); }
+}
+.pt-breathe {
+  transform-origin: 100px 180px;
+  animation: pt-breathe 4.5s ease-in-out infinite;
 }
 
-/* Gentle rise for the countdown number when it changes */
-@keyframes pt-tick {
-  from { transform: scale(1.12); opacity: 0.6; }
-  to { transform: scale(1); opacity: 1; }
+/* A happy little jump when a pose is right */
+@keyframes pt-hop {
+  0%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-14%); }
+  55% { transform: translateY(0); }
+  70% { transform: translateY(-5%); }
 }
-.pt-tick { animation: pt-tick 0.35s ease-out; }
+.pt-hop { animation: pt-hop 0.9s ease-out; }
 
-/* The verdict panel slides up once, when it appears */
-@keyframes pt-rise {
-  from { transform: translateY(10px); opacity: 0; }
+/* Messages and countdown numbers pop in */
+@keyframes pt-pop {
+  0% { transform: scale(0.85); opacity: 0; }
+  60% { transform: scale(1.04); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.pt-pop { animation: pt-pop 0.35s ease-out; }
+
+/* The pose list drops down */
+@keyframes pt-drop {
+  from { transform: translateY(-12px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
-.pt-rise { animation: pt-rise 0.3s ease-out; }
+.pt-drop { animation: pt-drop 0.22s ease-out; }
+
+/* Petals fly out of the flower when a pose is finished */
+@keyframes pt-petal {
+  0% { transform: rotate(var(--a)) translateY(0) scale(0.4); opacity: 1; }
+  100% { transform: rotate(var(--a)) translateY(-95px) scale(1); opacity: 0; }
+}
+.pt-petal { animation: pt-petal 1.1s ease-out forwards; }
+
+/* The star grows and turns in when it is earned */
+@keyframes pt-star-in {
+  0% { transform: scale(0) rotate(-120deg); }
+  70% { transform: scale(1.15) rotate(12deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+.pt-star-in { animation: pt-star-in 0.8s cubic-bezier(0.2, 0.9, 0.3, 1.2); }
+
+/* The star counter bumps when its number changes */
+@keyframes pt-bump {
+  0%, 100% { transform: scale(1); }
+  40% { transform: scale(1.35); }
+}
+.pt-bump { animation: pt-bump 0.6s ease-out; }
+
+/* A new flower in the progress row grows in */
+@keyframes pt-grow {
+  from { transform: scale(0) rotate(-90deg); }
+  to { transform: scale(1) rotate(0); }
+}
+.pt-grow { animation: pt-grow 0.5s ease-out; }
 
 @media (prefers-reduced-motion: reduce) {
-  .pt-tick, .pt-rise { animation: none; }
-}
-
-/* Soft frosted card used across the practice studio */
-@layer components {
-  .pt-card {
-    border-radius: 1.75rem;
-    background: rgba(255, 255, 255, 0.72);
-    -webkit-backdrop-filter: blur(18px);
-    backdrop-filter: blur(18px);
-    box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.7),
-      0 1px 2px rgba(29, 42, 38, 0.04),
-      0 14px 36px rgba(29, 42, 38, 0.07);
-  }
+  .pt-breathe, .pt-hop, .pt-pop, .pt-drop, .pt-petal, .pt-star-in, .pt-bump, .pt-grow { animation: none; }
+  .pt-petal { display: none; }
+  * { transition-duration: 0.01ms !important; }
 }

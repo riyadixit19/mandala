@@ -1,31 +1,28 @@
 // src/app/layout.tsx
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
-import { Figtree, Instrument_Serif } from 'next/font/google';
+import { Fraunces, Nunito } from 'next/font/google';
 import { siteMetadata, jsonLdData } from './metadata';
+import { DayTheme } from './components/Stars';
 import './globals.css';
 
-const figtree = Figtree({ subsets: ['latin'], variable: '--font-figtree', display: 'swap' });
-const instrumentSerif = Instrument_Serif({
-  subsets: ['latin'],
-  weight: '400',
-  style: ['normal', 'italic'],
-  variable: '--font-display',
-  display: 'swap',
-});
+// Fraunces (soft and slightly wobbly) for big headings, Nunito (clean and rounded) for everything else
+const fraunces = Fraunces({ subsets: ['latin'], axes: ['SOFT', 'WONK', 'opsz'], variable: '--font-fraunces', display: 'swap' });
+const nunito = Nunito({ subsets: ['latin'], variable: '--font-nunito', display: 'swap' });
 
 export const metadata: Metadata = siteMetadata;
 
 export const viewport: Viewport = {
-  themeColor: '#F3F4F0',
+  themeColor: '#F4F1EB',
   width: 'device-width',
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${figtree.variable} ${instrumentSerif.variable}`}>
+    <html lang="en" className={`${fraunces.variable} ${nunito.variable}`}>
       <body className="font-sans antialiased">
+        <DayTheme />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}

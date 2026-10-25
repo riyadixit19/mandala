@@ -1,7 +1,7 @@
 // components/HelpModal.tsx
 import React, { useEffect, useRef } from 'react';
-import { X } from 'lucide-react';
 import { CONFIDENCE_PRESETS, ConfidenceLevel, STRICTNESS_LABELS, CHECK_SECONDS, HOLD_SECONDS } from '../constants/yoga.constants';
+import { POSES_PER_STAR, GOLD_DAY_STARS } from '../utils/stars';
 
 interface HelpModalProps {
   isOpen: boolean;
@@ -9,17 +9,22 @@ interface HelpModalProps {
 }
 
 const STEPS = [
-  { title: 'Pick a pose', body: 'Choose one from the pose library. The illustration shows what it should look like.' },
-  { title: 'Start the camera', body: 'Allow camera access when your browser asks. Stand back so your whole body, head to feet, is in the frame.' },
-  { title: `Hold it for ${CHECK_SECONDS} seconds`, body: 'Stay still while the countdown runs. Mandala then checks your form and, if something is off, tells you what to fix.' },
-  { title: `Keep it for ${HOLD_SECONDS} seconds`, body: 'Once your form is right, a timer starts. If you slip out of the pose, it pauses until you are back.' },
+  { title: 'Pick a pose', body: 'Press Pick a pose and tap one. Hold it down to start right away. Or try a routine!' },
+  { title: 'Start the camera', body: 'Stand back so the camera sees you from head to toes.' },
+  { title: 'Copy the picture', body: `Hold still for ${CHECK_SECONDS} seconds.` },
+  { title: 'Stay there', body: `Keep the pose for ${HOLD_SECONDS} seconds and earn a flower.` },
+  { title: 'Collect stars', body: `${POSES_PER_STAR} different poses make a star, and so does finishing a routine. Get ${GOLD_DAY_STARS} stars in one day for a golden day!` },
 ];
 
+const STEP_COLORS = ['bg-lilac text-white', 'bg-rose text-white', 'bg-sun text-ink', 'bg-leaf text-white'];
+
 const TIPS = [
-  'Use bright, even light from the front. A window behind you makes tracking harder.',
-  'Wear clothes that contrast with the wall behind you.',
-  'Side-on poses, like Warrior I or Downward Dog, are easier to read when you face sideways to the camera.',
-  'If a pose keeps failing, try Relaxed strictness, or turn so the camera sees you from the same side as the picture.',
+  'Use bright light from the front. A window behind the child makes tracking harder.',
+  'Clothes that stand out from the wall help the camera.',
+  'For side-on poses, like Warrior I or Downward Dog, turn sideways to the camera.',
+  'If a pose keeps failing, choose Relaxed in Settings for grown-ups, or turn to match the picture.',
+  'Stars are saved on this device only and start again each day.',
+  'Stay close by, and skip any pose that does not feel right for the child.',
 ];
 
 const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
@@ -44,71 +49,61 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 sm:items-center sm:p-6" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/50 sm:items-center sm:p-6" onClick={onClose}>
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="help-title"
         onClick={e => e.stopPropagation()}
-        className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-[1.75rem] bg-white sm:rounded-[1.75rem]"
+        className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-2xl bg-card sm:rounded-2xl"
       >
-        <div className="sticky top-0 flex items-center justify-between border-b border-line bg-white px-6 py-4">
-          <h2 id="help-title" className="font-display text-[1.75rem] leading-tight text-ink">How it works</h2>
+        <div className="sticky top-0 flex items-center justify-between bg-card px-6 pb-3 pt-6">
+          <h2 id="help-title" className="text-4xl font-extrabold leading-tight text-ink">How to play</h2>
           <button
             ref={closeRef}
             onClick={onClose}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-ink hover:bg-paper"
-            aria-label="Close"
+            className="pt-btn h-14 rounded-full bg-paper px-6 text-xl font-bold text-ink"
           >
-            <X size={20} />
+            Close
           </button>
         </div>
 
-        <div className="space-y-8 px-6 py-6">
-          <ol className="space-y-5">
+        <div className="space-y-10 px-6 py-6">
+          <ol className="space-y-6">
             {STEPS.map((s, i) => (
-              <li key={s.title} className="flex gap-4">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-pine-soft text-sm font-semibold text-pine">
+              <li key={s.title} className="flex items-start gap-5">
+                <span className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-2xl font-extrabold ${STEP_COLORS[i % STEP_COLORS.length]}`}>
                   {i + 1}
                 </span>
                 <div>
-                  <h3 className="font-semibold text-ink">{s.title}</h3>
-                  <p className="mt-0.5 text-[15px] leading-relaxed text-muted">{s.body}</p>
+                  <h3 className="text-2xl font-bold text-ink">{s.title}</h3>
+                  <p className="mt-1 text-xl leading-relaxed text-muted">{s.body}</p>
                 </div>
               </li>
             ))}
           </ol>
 
-          <section>
-            <h3 className="font-semibold text-ink">Strictness</h3>
-            <p className="mt-1 text-[15px] leading-relaxed text-muted">
-              Strictness sets how closely your joints need to match the picture before a pose counts.
+          <section className="rounded-xl bg-paper p-5">
+            <h3 className="text-2xl font-bold text-ink">For grown-ups</h3>
+            <p className="mt-2 text-lg leading-relaxed text-muted">
+              Mandala starts on Relaxed, which allows for low muscle tone and wobbly balance. You can change how close is close enough in Settings for grown-ups.
             </p>
-            <dl className="mt-3 divide-y divide-line rounded-2xl border border-line">
+            <dl className="mt-4 divide-y-2 divide-line rounded-md bg-card">
               {(Object.keys(CONFIDENCE_PRESETS) as ConfidenceLevel[]).map(level => (
-                <div key={level} className="flex gap-4 px-4 py-3">
-                  <dt className="w-20 shrink-0 font-medium text-ink">{STRICTNESS_LABELS[level].label}</dt>
-                  <dd className="text-[15px] text-muted">{STRICTNESS_LABELS[level].hint}</dd>
+                <div key={level} className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:gap-4">
+                  <dt className="w-28 shrink-0 text-lg font-bold text-ink">{STRICTNESS_LABELS[level].label}</dt>
+                  <dd className="text-lg text-muted">{STRICTNESS_LABELS[level].hint}</dd>
                 </div>
               ))}
             </dl>
-          </section>
 
-          <section>
-            <h3 className="font-semibold text-ink">Getting better tracking</h3>
-            <ul className="mt-2 space-y-2">
+            <h3 className="mt-8 text-2xl font-bold text-ink">Better tracking</h3>
+            <ul className="mt-3 list-disc space-y-2 pl-6 text-lg leading-relaxed text-muted marker:text-rose">
               {TIPS.map(t => (
-                <li key={t} className="flex gap-3 text-[15px] leading-relaxed text-muted">
-                  <span className="mt-[0.6em] h-1.5 w-1.5 shrink-0 rounded-full bg-marigold" aria-hidden />
-                  {t}
-                </li>
+                <li key={t}>{t}</li>
               ))}
             </ul>
           </section>
-
-          <p className="text-sm text-muted">
-            Practise somewhere with space around you, and skip any pose that doesn&apos;t feel right for your body.
-          </p>
         </div>
       </div>
     </div>

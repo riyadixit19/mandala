@@ -3,7 +3,7 @@ import { SKELETON_CONNECTIONS, SKELETON_SETTINGS, DETECTION_THRESHOLDS } from '.
 
 /**
  * Draws the tracked skeleton over the camera feed.
- * `highlighted` turns the joints marigold when the user matches the target pose.
+ * `highlighted` turns the joints pink when the user matches the target pose.
  */
 export const drawSkeleton = (
   canvas: HTMLCanvasElement | null,

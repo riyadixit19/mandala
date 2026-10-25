@@ -2,9 +2,8 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { CircleHelp, AlertCircle, RotateCw } from 'lucide-react';
 import { Keypoint, PoseDataItem } from './types/yoga.types';
-import { POSES_JSON_PATH, CONFIDENCE_PRESETS, ConfidenceLevel, CHECK_SECONDS, HOLD_SECONDS } from './constants/yoga.constants';
+import { POSES_JSON_PATH, CONFIDENCE_PRESETS, ConfidenceLevel, CHECK_SECONDS, HOLD_SECONDS, isRealPose } from './constants/yoga.constants';
 import { loadPoseModel, loadPosesData } from './utils/dataLoader';
 import { drawSkeleton } from './utils/skeletonDrawer';
 import { playSuccessSound, playCompleteSound, unlockAudio } from './utils/soundUtils';
@@ -13,15 +12,20 @@ import { PoseStabilizer } from './utils/poseStabilizer';
 import { calculatePoseQuality } from './utils/scaleInvariant';
 import { matchPose, closestPose, MatchResult } from './utils/poseMatcher';
 import { PracticeSession, SessionView } from './utils/practiceSession';
-import CameraControls from './components/CameraControls';
+import CameraControls, { GrownUpSettings } from './components/CameraControls';
 import PosePanel from './components/PosePanel';
-import PoseLibrary from './components/PoseLibrary';
 import HelpModal from './components/HelpModal';
-import SessionOverlay from './components/SessionOverlay';
-import { LogoMark, Wordmark } from './components/brand/Logo';
+import CoachMessage from './components/CoachMessage';
+import PoseFigure from './figure/PoseFigure';
+import { StarCelebration, StarProgressBar } from './components/Stars';
+import { addStar, POSES_PER_STAR } from './utils/stars';
+import { Routine, findRoutine } from './utils/routines';
+import TopBar from './components/TopBar';
 
 /** A detection result older than this is treated as "nobody in frame" */
 const STALE_FRAME_MS = 700;
+/** In a routine, how long to enjoy a finished pose before the next one starts */
+const ROUTINE_PAUSE_MS = 3500;
 
 const YogaPoseDetector: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -30,7 +34,7 @@ const YogaPoseDetector: React.FC = () => {
   const smootherRef = useRef(new KeypointSmoother());
   const stabilizerRef = useRef(new PoseStabilizer());
   const sessionRef = useRef(new PracticeSession(CHECK_SECONDS * 1000, HOLD_SECONDS * 1000));
-  const targetRef = useRef<HTMLDivElement | null>(null);
+  const cameraRef = useRef<HTMLElement | null>(null);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
@@ -42,9 +46,18 @@ const YogaPoseDetector: React.FC = () => {
   // true when the camera itself can zoom; otherwise the picture is zoomed on screen
   const [hardwareZoom, setHardwareZoom] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [confidenceLevel, setConfidenceLevel] = useState<ConfidenceLevel>('medium');
+  const [confidenceLevel, setConfidenceLevel] = useState<ConfidenceLevel>('low');
   const [currentPose, setCurrentPose] = useState('Unknown');
-  const [poseCount, setPoseCount] = useState(0);
+  // different poses finished since the last star, and the star just earned (shows the celebration)
+  const [starPoses, setStarPoses] = useState<string[]>([]);
+  const starPosesRef = useRef<Set<string>>(new Set());
+  const [newStar, setNewStar] = useState<number | null>(null);
+  const [starReason, setStarReason] = useState<string | null>(null);
+  // following a routine: which one, which pose we're on, and whether it's finished
+  const [routine, setRoutine] = useState<{ r: Routine; step: number; done: boolean } | null>(null);
+  const routineRef = useRef(routine);
+  routineRef.current = routine;
+  const advanceTimer = useRef<number | null>(null);
   const [posesData, setPosesData] = useState<PoseDataItem[]>([]);
   const [selectedPoseIndex, setSelectedPoseIndex] = useState<number | null>(null);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -94,6 +107,53 @@ const YogaPoseDetector: React.FC = () => {
     frameRef.current = null;
     setSessionView(null);
   }, []);
+
+  // /practice?pose=Tree%20Pose picks a pose; /practice?routine=sunny-morning starts a routine
+  const urlRead = useRef(false);
+  useEffect(() => {
+    if (!posesData.length || urlRead.current) return;
+    urlRead.current = true;
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('routine');
+    const r = id ? findRoutine(id) : undefined;
+    if (r) {
+      setRoutine({ r, step: 0, done: false });
+    } else {
+      const i = posesData.findIndex(p => p.name === params.get('pose'));
+      if (i >= 0) setSelectedPoseIndex(i);
+    }
+  }, [posesData]);
+
+  // in a routine, the current step decides the pose (and a repeated pose still starts fresh)
+  const routineStep = routine?.step;
+  const routineDef = routine?.r;
+  useEffect(() => {
+    if (!routineDef || routineStep === undefined) return;
+    const i = posesData.findIndex(p => p.name === routineDef.poses[routineStep]);
+    if (i >= 0) setSelectedPoseIndex(i);
+    resetSession();
+  }, [routineDef, routineStep, posesData, resetSession]);
+
+  const goToStep = useCallback((step: number) => {
+    if (advanceTimer.current !== null) window.clearTimeout(advanceTimer.current);
+    advanceTimer.current = null;
+    setRoutine(cur => cur && { ...cur, step: Math.max(0, Math.min(step, cur.r.poses.length - 1)), done: false });
+  }, []);
+
+  useEffect(() => () => {
+    if (advanceTimer.current !== null) window.clearTimeout(advanceTimer.current);
+  }, []);
+
+  const restartRoutine = () => {
+    goToStep(0);
+    resetSession();
+  };
+
+  const leaveRoutine = () => {
+    if (advanceTimer.current !== null) window.clearTimeout(advanceTimer.current);
+    setRoutine(null);
+    window.history.replaceState(null, '', '/practice');
+  };
 
   // A new target or strictness starts the practice over
   useEffect(() => {
@@ -196,16 +256,25 @@ const YogaPoseDetector: React.FC = () => {
     loadPoseModel(setIsLoading, setIsModelLoaded, setError, landmarkerRef);
   };
 
-  const handleSelectPose = (index: number) => {
+  // hold down / right-click in the pose list: pick the pose, start the camera and show it
+  const selectAndGo = (index: number) => {
     setSelectedPoseIndex(index);
-    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
-      targetRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    if (!isCameraOn && isModelLoaded && !isCameraLoading) startCamera();
+    if (window.innerWidth < 1024) cameraRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const nextPose = () => {
     if (!posesData.length) return;
-    setSelectedPoseIndex(i => (i === null ? 0 : (i + 1) % posesData.length));
+    if (routine) {
+      if (routine.step < routine.r.poses.length - 1) goToStep(routine.step + 1);
+      return;
+    }
+    setSelectedPoseIndex(i => {
+      let next = i === null ? 0 : (i + 1) % posesData.length;
+      // skip the placeholder entry the library hides
+      if (!isRealPose(posesData[next]?.name ?? '')) next = (next + 1) % posesData.length;
+      return next;
+    });
   };
 
   // Detection loop: runs once per camera session
@@ -314,62 +383,90 @@ const YogaPoseDetector: React.FC = () => {
       if (events.includes('correct')) playSuccessSound(soundRef.current);
       if (events.includes('complete')) {
         playCompleteSound(soundRef.current);
-        setPoseCount(c => c + 1);
+        // a star for every ten different poses finished in this visit
+        const done = starPosesRef.current;
+        if (targetNameRef.current) done.add(targetNameRef.current);
+        if (done.size >= POSES_PER_STAR) {
+          done.clear();
+          setStarReason(null);
+          setNewStar(addStar());
+        }
+        setStarPoses(Array.from(done));
+        // in a routine: move on to the next pose, or finish and earn a star
+        const rt = routineRef.current;
+        if (rt && !rt.done) {
+          if (rt.step < rt.r.poses.length - 1) {
+            advanceTimer.current = window.setTimeout(() => goToStep(rt.step + 1), ROUTINE_PAUSE_MS);
+          } else {
+            setRoutine({ ...rt, done: true });
+            setStarReason(`You finished ${rt.r.name}!`);
+            setNewStar(addStar());
+          }
+        }
       }
     }, 100);
     return () => window.clearInterval(id);
-  }, [isCameraOn, targetName]);
+  }, [isCameraOn, targetName, goToStep]);
 
   const mirrored = facingMode === 'user';
   const cssZoom = hardwareZoom ? 1 : zoom;
 
-  return (
-    <div className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-[#F6F9F5] via-[#E6EFE8] to-[#D2E3D8] text-ink">
-      {/* the flower, very large and faint, behind everything */}
-      <LogoMark
-        className="pointer-events-none fixed -right-48 -top-48 h-[40rem] w-[40rem] text-pine/[0.06]"
-        strokeWidth={0.9}
-      />
+  const seenPose = isRealPose(currentPose) ? currentPose.split('(')[0].trim() : null;
 
-      <header className="relative">
-        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-          <Link href="/" className="rounded-lg" aria-label="Mandala home">
-            <Wordmark />
-          </Link>
+  return (
+    <div className="min-h-screen overflow-x-hidden bg-paper text-ink">
+      <TopBar
+        center={
+          routine ? (
+            <StarProgressBar done={routine.done ? routine.r.poses.length : routine.step} total={routine.r.poses.length} label={routine.done ? 'All done!' : `Pose ${routine.step + 1} of ${routine.r.poses.length}`} />
+          ) : (
+            <StarProgressBar done={starPoses.length} />
+          )
+        }
+        right={
           <button
             onClick={() => setIsHelpOpen(true)}
-            className="inline-flex h-10 items-center gap-2 rounded-full bg-white/60 px-4 text-sm font-medium text-ink backdrop-blur hover:bg-white transition-colors"
+            aria-label="Help"
+            className="pt-btn h-14 w-14 shrink-0 rounded-full bg-card text-2xl font-extrabold text-ink"
           >
-            <CircleHelp size={18} />
-            <span className="hidden sm:inline">How it works</span>
+            ?
           </button>
-        </div>
-      </header>
+        }
+      />
 
-      <main className="relative mx-auto max-w-7xl space-y-6 px-4 pb-8 pt-2 sm:px-6">
+      <main className="mx-auto max-w-7xl space-y-6 px-4 pb-10 sm:px-6">
         {error && (
-          <div role="alert" className="flex flex-wrap items-center gap-3 rounded-2xl bg-rust-soft/90 px-5 py-3.5 text-[15px] text-rust">
-            <AlertCircle size={18} className="shrink-0" />
+          <div role="alert" className="flex flex-wrap items-center gap-4 rounded-xl bg-peach-soft px-6 py-4 text-xl text-ink">
             <p className="flex-1">{error}</p>
             {!isModelLoaded && !isLoading && (
-              <button onClick={() => reloadModel()} className="inline-flex items-center gap-1.5 font-semibold underline-offset-2 hover:underline">
-                <RotateCw size={15} />
-                Reload model
+              <button onClick={() => reloadModel()} className="pt-btn h-12 rounded-full bg-ink px-6 font-bold text-white">
+                Try again
               </button>
             )}
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-          {/* Camera */}
-          <section aria-label="Camera" className="pt-card p-2">
-            <div className="relative overflow-hidden rounded-[1.35rem] bg-ink" style={{ aspectRatio: '4 / 3' }}>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
+          <div className="lg:order-last">
+            <PosePanel
+              posesData={posesData}
+              selectedPoseIndex={selectedPoseIndex}
+              view={sessionView}
+              onSelect={setSelectedPoseIndex}
+              onSelectAndGo={selectAndGo}
+              onNextPose={nextPose}
+              routine={routine && { name: routine.r.name, poses: routine.r.poses, step: routine.step, done: routine.done }}
+              onLeaveRoutine={leaveRoutine}
+            />
+          </div>
+
+          <section ref={cameraRef} aria-label="Camera" className="scroll-mt-4 space-y-4">
+            <div className="relative overflow-hidden rounded-2xl bg-ink" style={{ aspectRatio: '4 / 3' }}>
               <div
                 className="absolute inset-0"
                 style={{
                   transform: `scale(${(mirrored ? -1 : 1) * cssZoom}, ${cssZoom})`,
                   transformOrigin: 'center center',
-                  transition: 'transform 0.2s ease-out',
                 }}
               >
                 <video ref={videoRef} className="h-full w-full object-cover" playsInline muted />
@@ -378,54 +475,38 @@ const YogaPoseDetector: React.FC = () => {
               </div>
 
               {!isCameraOn && (
-                <div className="absolute inset-0 flex items-center justify-center p-6">
-                  <div className="max-w-sm text-center">
-                    {isLoading || isCameraLoading ? (
-                      <>
-                        <span className="mx-auto mb-4 block h-6 w-6 rounded-full border-2 border-white/20 border-t-white animate-spin" aria-hidden />
-                        <p className="font-display text-2xl text-white sm:text-3xl">{isLoading ? 'Loading the pose tracker' : 'Starting camera'}</p>
-                        <p className="mt-2 text-[15px] text-white/60">
-                          {isLoading ? 'This takes a few seconds the first time.' : 'Allow camera access if your browser asks.'}
-                        </p>
-                      </>
-                    ) : isModelLoaded ? (
-                      <>
-                        <p className="font-display text-3xl text-white sm:text-4xl">Ready when you are</p>
-                        <p className="mt-2 text-[15px] leading-relaxed text-white/65">
-                          {targetName
-                            ? 'Start the camera below, then step back until your whole body is in the frame.'
-                            : 'Pick a pose from the library, then start the camera below.'}
-                        </p>
-                      </>
-                    ) : (
-                      <p className="text-[15px] text-white/60">The pose tracker isn&apos;t available.</p>
-                    )}
-                  </div>
+                <div className="absolute inset-0 flex items-center justify-center p-6 text-center">
+                  <p className="text-3xl font-bold text-card/80 sm:text-4xl">
+                    {isLoading ? 'Getting ready...' : isCameraLoading ? 'Starting...' : isModelLoaded ? 'Camera is off' : 'The camera helper is not working'}
+                  </p>
                 </div>
               )}
 
-              {isCameraOn && targetName && (
-                <span className="absolute left-4 top-4 rounded-full bg-ink/50 px-3.5 py-1.5 text-sm font-medium text-white backdrop-blur">
-                  {targetName}
-                </span>
-              )}
-
               {isCameraOn && qualityScore > 0 && qualityScore < 55 && sessionView?.phase !== 'complete' && (
-                <span className="absolute right-4 top-4 rounded-full bg-ink/50 px-3.5 py-1.5 text-sm text-white backdrop-blur">
+                <span className="pt-pop absolute left-4 top-4 rounded-full bg-sun px-5 py-3 text-2xl font-extrabold text-ink">
                   Step back a little
                 </span>
               )}
 
-              {isCameraOn && (
-                <SessionOverlay
-                  view={sessionView}
-                  targetName={targetName}
-                  threshold={threshold}
-                  onRestart={resetSession}
-                  onNextPose={nextPose}
-                />
+              {/* the pose to copy, stuck on the corner of the camera so both are in view at once */}
+              {isCameraOn && targetName && (
+                <span className="absolute bottom-3 right-3 w-[26%] min-w-[84px] max-w-[170px] rotate-3 rounded-full border-4 border-card bg-paper" aria-hidden>
+                  <PoseFigure pose={targetName} showGround={false} decorative className="block aspect-square w-full" />
+                </span>
               )}
             </div>
+
+            <CoachMessage
+              view={sessionView}
+              targetName={targetName}
+              threshold={threshold}
+              isCameraOn={isCameraOn}
+              isReady={isModelLoaded}
+              onRestart={routine ? restartRoutine : resetSession}
+              onNextPose={nextPose}
+              routineNext={routine && !routine.done && routine.step < routine.r.poses.length - 1 ? routine.r.poses[routine.step + 1] : null}
+              routineDone={routine?.done ? routine.r.name : null}
+            />
 
             <CameraControls
               isModelLoaded={isModelLoaded}
@@ -434,6 +515,7 @@ const YogaPoseDetector: React.FC = () => {
               soundEnabled={soundEnabled}
               zoom={zoom}
               confidenceLevel={confidenceLevel}
+              seenPose={seenPose}
               onStartCamera={startCamera}
               onStopCamera={stopCamera}
               onSwitchCamera={switchCamera}
@@ -443,27 +525,31 @@ const YogaPoseDetector: React.FC = () => {
             />
           </section>
 
-          <div ref={targetRef} className="scroll-mt-4">
-            <PosePanel
-              posesData={posesData}
-              selectedPoseIndex={selectedPoseIndex}
-              currentPose={currentPose}
-              poseCount={poseCount}
-              isCameraOn={isCameraOn}
-              view={sessionView}
-            />
-          </div>
         </div>
 
-        <PoseLibrary posesData={posesData} selectedPoseIndex={selectedPoseIndex} onSelectPose={handleSelectPose} />
+        <GrownUpSettings
+          isModelLoaded={isModelLoaded}
+          isCameraOn={isCameraOn}
+          isCameraLoading={isCameraLoading}
+          soundEnabled={soundEnabled}
+          zoom={zoom}
+          confidenceLevel={confidenceLevel}
+          seenPose={seenPose}
+          onStartCamera={startCamera}
+          onStopCamera={stopCamera}
+          onSwitchCamera={switchCamera}
+          onToggleSound={() => setSoundEnabled(s => !s)}
+          onZoom={handleZoom}
+          onConfidenceLevelChange={setConfidenceLevel}
+        />
 
-        <footer className="flex items-center justify-center gap-2 pt-2 text-sm text-muted">
-          <LogoMark className="h-4 w-4 text-pine/70" strokeWidth={5} />
-          Pose tracking runs in your browser. Your camera video is not uploaded.
+        <footer className="pt-2 text-center text-lg text-muted">
+          The camera picture stays on this device. Nothing is uploaded.
         </footer>
       </main>
 
       <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
+      {newStar !== null && <StarCelebration stars={newStar} reason={starReason} onClose={() => setNewStar(null)} />}
     </div>
   );
 };

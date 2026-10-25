@@ -33,7 +33,7 @@ const LOST_BODY_MS = 1000; // body out of frame this long during the check resta
 const VERDICT_WINDOW_MS = 2500; // the check is judged on the last 2.5 s of the hold
 const CORRECT_SHOW_MS = 1500;
 const INCORRECT_SHOW_MS = 3000;
-const LEAVE_GRACE_MS = 1500; // wobbling out of the pose briefly doesn't pause the timer
+const LEAVE_GRACE_MS = 2500; // wobbling out of the pose briefly doesn't pause the timer (balance is harder with low muscle tone)
 const HOLD_SLACK = 0.08; // once you've passed, staying in the pose is slightly more forgiving
 
 export class PracticeSession {
@@ -91,7 +91,7 @@ export class PracticeSession {
           const recent = this.samples.filter(s => now - s.t <= VERDICT_WINDOW_MS);
           const mean = recent.length ? recent.reduce((a, s) => a + s.score, 0) / recent.length : 0;
           const passing = recent.length ? recent.filter(s => s.score >= threshold).length / recent.length : 0;
-          if (recent.length >= 3 && mean >= threshold && passing >= 0.6) {
+          if (recent.length >= 3 && mean >= threshold && passing >= 0.5) {
             this.hint = null;
             this.go('correct', now);
             events.push('correct');
