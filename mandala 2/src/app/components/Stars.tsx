@@ -13,8 +13,8 @@ export function StarShape({ className, filled = true }: { className?: string; fi
     <svg viewBox="0 0 100 100" className={className} aria-hidden>
       <path
         d={STAR_PATH}
-        fill={filled ? '#F4AE1A' : 'none'}
-        stroke={filled ? '#C98A07' : '#D9C9A8'}
+        fill={filled ? '#F7B514' : 'none'}
+        stroke={filled ? '#C98A07' : '#D5CBEA'}
         strokeWidth={6}
         strokeLinejoin="round"
       />
@@ -66,7 +66,7 @@ export function StarTracker() {
 
   return (
     <div
-      className="flex h-14 items-center gap-2 rounded-md border-2 border-marigold bg-marigold-soft px-3"
+      className="flex h-14 items-center gap-2 rounded-md border-2 border-gold bg-gold-soft px-3"
       aria-label={`${stars} ${stars === 1 ? 'star' : 'stars'} today`}
       role="img"
     >
@@ -93,7 +93,7 @@ export function StarCelebration({ stars, onClose }: { stars: number; onClose: ()
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 p-6" onClick={onClose} role="alertdialog" aria-labelledby="star-title">
-      <div className="pt-pop w-full max-w-md rounded-md border-2 border-marigold bg-card px-6 py-8 text-center" onClick={e => e.stopPropagation()}>
+      <div className="pt-pop w-full max-w-md rounded-md border-2 border-gold bg-card px-6 py-8 text-center" onClick={e => e.stopPropagation()}>
         <StarShape className="pt-star-in mx-auto h-40 w-40" />
         <h2 id="star-title" className="mt-4 text-5xl font-black text-ink">You got a star!</h2>
         <p className="mt-3 text-2xl text-muted">
@@ -104,7 +104,7 @@ export function StarCelebration({ stars, onClose }: { stars: number; onClose: ()
         <button
           onClick={onClose}
           autoFocus
-          className="pt-btn mt-6 h-16 w-full rounded-md border-2 border-pine-dark bg-pine text-3xl font-black text-white"
+          className="pt-btn mt-6 h-16 w-full rounded-md border-2 border-purple-dark bg-purple text-3xl font-black text-white"
         >
           Yay!
         </button>

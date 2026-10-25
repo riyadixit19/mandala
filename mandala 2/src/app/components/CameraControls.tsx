@@ -28,7 +28,7 @@ const CameraControls: React.FC<CameraControlsProps> = ({ isModelLoaded, isCamera
   return isCameraOn ? (
     <button
       onClick={onStopCamera}
-      className="pt-btn h-20 w-full rounded-md border-2 border-rust-dark bg-rust text-3xl font-black text-white"
+      className="pt-btn h-20 w-full rounded-md border-2 border-coral-dark bg-coral text-3xl font-black text-white"
     >
       Stop camera
     </button>
@@ -36,7 +36,7 @@ const CameraControls: React.FC<CameraControlsProps> = ({ isModelLoaded, isCamera
     <button
       onClick={() => onStartCamera()}
       disabled={!isModelLoaded || isCameraLoading}
-      className="pt-btn h-20 w-full rounded-md border-2 border-pine-dark bg-pine text-3xl font-black text-white disabled:cursor-not-allowed disabled:border-line disabled:bg-line disabled:text-muted"
+      className="pt-btn h-20 w-full rounded-md border-2 border-purple-dark bg-purple text-3xl font-black text-white disabled:cursor-not-allowed disabled:border-line disabled:bg-line disabled:text-muted"
     >
       {isCameraLoading ? 'Starting...' : 'Start camera'}
     </button>
@@ -76,7 +76,7 @@ export const GrownUpSettings: React.FC<CameraControlsProps> = ({
                   aria-checked={active}
                   onClick={() => onConfidenceLevelChange(level)}
                   className={`h-14 rounded-md border-2 px-1 text-base font-bold sm:text-lg ${
-                    active ? 'border-sky-dark bg-sky text-white' : 'border-line bg-card text-ink'
+                    active ? 'border-blue-dark bg-blue text-white' : 'border-line bg-card text-ink'
                   }`}
                 >
                   {STRICTNESS_LABELS[level].label}

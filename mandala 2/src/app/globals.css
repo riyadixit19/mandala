@@ -4,10 +4,10 @@
 
 /* Larger base size: every rem-based size in the app grows with it, so text is easy to read */
 html {
-  --paper: #FFF6E5;
+  --paper: #F4EFFF;
   font-size: 112.5%;
   background: var(--paper);
-  color: #21302B;
+  color: #1F2147;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
@@ -15,7 +15,7 @@ html {
 
 /* Three stars in one day: the whole page turns golden */
 html[data-day='gold'] {
-  --paper: #FFE39A;
+  --paper: #FFE7A0;
 }
 
 body {
@@ -30,7 +30,7 @@ button, a, summary {
 }
 
 :focus-visible {
-  outline: 3px solid #1C83D6;
+  outline: 3px solid #1865F2;
   outline-offset: 3px;
 }
 

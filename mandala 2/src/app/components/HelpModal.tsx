@@ -16,7 +16,7 @@ const STEPS = [
   { title: 'Collect stars', body: `${POSES_PER_STAR} different poses make a star. Get ${GOLD_DAY_STARS} stars in one day for a golden day!` },
 ];
 
-const STEP_COLORS = ['bg-sky text-white', 'bg-marigold text-ink', 'bg-rust text-white', 'bg-pine text-white'];
+const STEP_COLORS = ['bg-blue text-white', 'bg-pink text-white', 'bg-coral text-white', 'bg-purple text-white'];
 
 const TIPS = [
   'Use bright light from the front. A window behind the child makes tracking harder.',
@@ -98,7 +98,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
             </dl>
 
             <h3 className="mt-8 text-2xl font-bold text-ink">Better tracking</h3>
-            <ul className="mt-3 list-disc space-y-2 pl-6 text-lg leading-relaxed text-muted marker:text-marigold">
+            <ul className="mt-3 list-disc space-y-2 pl-6 text-lg leading-relaxed text-muted marker:text-pink">
               {TIPS.map(t => (
                 <li key={t}>{t}</li>
               ))}

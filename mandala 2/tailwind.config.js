@@ -6,25 +6,27 @@ module.exports = {
   ],
   theme: {
     extend: {
-      // A bright crayon box on warm cream paper. The paper colour is a CSS variable
-      // so it can turn golden on a three-star day (see globals.css).
+      // Playful purples, pinks and blues (in the spirit of Khan Academy) on soft lavender paper.
+      // The paper colour is a CSS variable so it can turn golden on a three-star day (see globals.css).
       colors: {
         paper: 'var(--paper)',
-        card: '#FFFAEF',
-        ink: '#21302B',
-        muted: '#4F5D57',
-        line: '#E7DCC6',
-        pine: { DEFAULT: '#23924A', dark: '#1A7339', soft: '#DDF3E3' },
-        sky: { DEFAULT: '#1C83D6', dark: '#1468AC', soft: '#DCEEFC' },
-        marigold: { DEFAULT: '#F4AE1A', dark: '#C98A07', soft: '#FFF0C4' },
-        rust: { DEFAULT: '#E5583B', dark: '#B9422A', soft: '#FDE2DA' },
+        card: '#FFFCFF',
+        ink: '#1F2147',
+        muted: '#565A7E',
+        line: '#E3DAF7',
+        purple: { DEFAULT: '#7650F0', dark: '#5734CC', soft: '#EEE8FF' },
+        blue: { DEFAULT: '#1865F2', dark: '#0F4CBF', soft: '#E2ECFF' },
+        pink: { DEFAULT: '#EC4C93', dark: '#C42F72', soft: '#FFE2F0' },
+        coral: { DEFAULT: '#FF6B57', dark: '#D84A38', soft: '#FFE6E1' },
+        gold: { DEFAULT: '#F7B514', dark: '#C98A07', soft: '#FFF3C9' },
       },
       fontFamily: {
         sans: ['var(--font-lato)', 'Lato', '"Noto Sans"', 'Helvetica', 'sans-serif'],
       },
       borderRadius: {
-        DEFAULT: '8px',
-        md: '8px',
+        // big, friendly round corners
+        DEFAULT: '12px',
+        md: '20px',
       },
     },
   },

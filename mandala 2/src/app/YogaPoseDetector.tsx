@@ -361,10 +361,10 @@ const YogaPoseDetector: React.FC = () => {
 
       <main className="mx-auto max-w-7xl space-y-6 px-4 pb-10 sm:px-6">
         {error && (
-          <div role="alert" className="flex flex-wrap items-center gap-4 rounded-md border-2 border-rust bg-rust-soft px-5 py-4 text-xl text-rust-dark">
+          <div role="alert" className="flex flex-wrap items-center gap-4 rounded-md border-2 border-coral bg-coral-soft px-5 py-4 text-xl text-coral-dark">
             <p className="flex-1">{error}</p>
             {!isModelLoaded && !isLoading && (
-              <button onClick={() => reloadModel()} className="pt-btn h-12 rounded-md border-2 border-rust-dark bg-rust px-5 font-bold text-white">
+              <button onClick={() => reloadModel()} className="pt-btn h-12 rounded-md border-2 border-coral-dark bg-coral px-5 font-bold text-white">
                 Try again
               </button>
             )}
@@ -385,7 +385,7 @@ const YogaPoseDetector: React.FC = () => {
           </div>
 
           <section ref={cameraRef} aria-label="Camera" className="scroll-mt-4 space-y-4">
-            <div className="relative overflow-hidden rounded-md border-4 border-sky bg-ink" style={{ aspectRatio: '4 / 3' }}>
+            <div className="relative overflow-hidden rounded-md border-4 border-blue bg-ink" style={{ aspectRatio: '4 / 3' }}>
               <div
                 className="absolute inset-0"
                 style={{
@@ -407,7 +407,7 @@ const YogaPoseDetector: React.FC = () => {
               )}
 
               {isCameraOn && qualityScore > 0 && qualityScore < 55 && sessionView?.phase !== 'complete' && (
-                <span className="pt-pop absolute left-4 top-4 rounded-md bg-marigold px-5 py-3 text-2xl font-black text-ink">
+                <span className="pt-pop absolute left-4 top-4 rounded-md bg-pink px-5 py-3 text-2xl font-black text-white">
                   Step back a little
                 </span>
               )}

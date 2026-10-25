@@ -4,8 +4,8 @@
   "description": "Yoga for kids. Copy the pose, hold it, and earn flowers and stars.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FFF6E5",
-  "theme_color": "#23924A",
+  "background_color": "#F4EFFF",
+  "theme_color": "#7650F0",
   "orientation": "any",
   "icons": [
     {

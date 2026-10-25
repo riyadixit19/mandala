@@ -11,17 +11,17 @@ export default function Home() {
         <StarTracker />
       </div>
 
-      <LogoMark className="h-20 w-20 text-rust sm:h-24 sm:w-24" strokeWidth={3.4} />
+      <LogoMark className="h-20 w-20 text-pink sm:h-24 sm:w-24" strokeWidth={3.4} />
       <h1 className="mt-3 text-6xl font-black tracking-tight sm:text-7xl">Mandala</h1>
-      <p className="mt-3 text-2xl font-bold text-sky">Yoga with a friend</p>
+      <p className="mt-3 text-2xl font-bold text-blue">Yoga with a friend</p>
 
-      <div className="mt-6 rounded-md bg-pine-soft px-6">
+      <div className="mt-6 rounded-md bg-purple-soft px-6">
         <PoseCarousel className="block h-64 w-64 sm:h-80 sm:w-80" />
       </div>
 
       <Link
         href="/practice"
-        className="pt-btn mt-8 inline-flex h-20 items-center rounded-md border-2 border-pine-dark bg-pine px-16 text-3xl font-black text-white"
+        className="pt-btn mt-8 inline-flex h-20 items-center rounded-md border-2 border-purple-dark bg-purple px-16 text-3xl font-black text-white"
       >
         Start
       </Link>

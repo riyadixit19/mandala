@@ -22,7 +22,7 @@ interface PosePanelProps {
   onNextPose: () => void;
 }
 
-const FLOWER_COLORS = ['text-rust', 'text-marigold', 'text-sky', 'text-pine'];
+const FLOWER_COLORS = ['text-coral', 'text-pink', 'text-blue', 'text-purple'];
 
 /** Ten spots; each different pose finished fills one with a flower. Ten flowers make a star. */
 function StarProgress({ done }: { done: number }) {
@@ -53,11 +53,11 @@ const PosePanel: React.FC<PosePanelProps> = ({ posesData, selectedPoseIndex, sta
   return (
     <aside
       aria-labelledby="target-heading"
-      className={`rounded-md border-2 bg-card p-4 sm:p-6 ${phase === 'holding' || happy ? 'border-pine' : 'border-line'}`}
+      className={`rounded-md border-2 bg-card p-4 sm:p-6 ${phase === 'holding' || happy ? 'border-purple' : 'border-line'}`}
     >
       <PosePicker posesData={posesData} selectedPoseIndex={selectedPoseIndex} onSelect={onSelect} onSelectAndGo={onSelectAndGo} />
 
-      <div className="mt-4 overflow-hidden rounded-md bg-sky-soft">
+      <div className="mt-4 overflow-hidden rounded-md bg-blue-soft">
         {/* keyed so she jumps again every time a pose is right */}
         <div key={happy ? `hop-${phase}` : 'still'} className={happy ? 'pt-hop' : undefined}>
           <PoseFigure pose={target?.name ?? NEUTRAL_POSE} animate className="mx-auto block aspect-square w-full max-w-[220px] sm:max-w-[320px]" />
@@ -74,7 +74,7 @@ const PosePanel: React.FC<PosePanelProps> = ({ posesData, selectedPoseIndex, sta
       {target && (
         <button
           onClick={onNextPose}
-          className="pt-btn mt-4 h-16 w-full rounded-md border-2 border-marigold-dark bg-marigold text-2xl font-black text-ink"
+          className="pt-btn mt-4 h-16 w-full rounded-md border-2 border-pink-dark bg-pink text-2xl font-black text-white"
         >
           Next pose
         </button>

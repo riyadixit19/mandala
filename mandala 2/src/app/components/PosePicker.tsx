@@ -15,7 +15,7 @@ interface PosePickerProps {
 }
 
 const HOLD_MS = 550;
-const GROUP_COLORS = ['bg-sky', 'bg-marigold', 'bg-rust', 'bg-pine', 'bg-sky', 'bg-rust'];
+const GROUP_COLORS = ['bg-blue', 'bg-pink', 'bg-coral', 'bg-purple', 'bg-blue', 'bg-coral'];
 
 function Arrow({ open }: { open: boolean }) {
   return (
@@ -94,7 +94,7 @@ const PosePicker: React.FC<PosePickerProps> = ({ posesData, selectedPoseIndex, o
         onClick={() => setOpen(o => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="pt-btn flex h-20 w-full items-center gap-3 rounded-md border-2 border-sky-dark bg-sky px-4 text-left text-white"
+        className="pt-btn flex h-20 w-full items-center gap-3 rounded-md border-2 border-blue-dark bg-blue px-4 text-left text-white"
       >
         {target && (
           <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded bg-card">
@@ -113,7 +113,7 @@ const PosePicker: React.FC<PosePickerProps> = ({ posesData, selectedPoseIndex, o
             role="listbox"
             aria-label="Poses"
             onKeyDown={onListKey}
-            className="pt-drop absolute left-0 right-0 top-full z-40 mt-2 max-h-[65vh] overflow-y-auto rounded-md border-2 border-sky bg-card"
+            className="pt-drop absolute left-0 right-0 top-full z-40 mt-2 max-h-[65vh] overflow-y-auto rounded-md border-2 border-blue bg-card"
           >
             <p className="sticky top-0 z-10 border-b-2 border-line bg-card px-4 py-3 text-lg text-muted">
               Tap a pose to pick it. Hold it down, or right-click, to pick it and start.
@@ -166,7 +166,7 @@ const PosePicker: React.FC<PosePickerProps> = ({ posesData, selectedPoseIndex, o
                       onPointerLeave={cancelHold}
                       onPointerCancel={cancelHold}
                       className={`pt-hold mx-2 my-1 flex cursor-pointer items-center gap-4 rounded-md border-2 px-2 py-1 ${
-                        selected ? 'border-pine bg-pine-soft' : 'border-transparent hover:bg-paper'
+                        selected ? 'border-purple bg-purple-soft' : 'border-transparent hover:bg-paper'
                       }`}
                     >
                       <PoseFigure pose={pose.name} showGround={false} decorative className="h-16 w-16 shrink-0" />

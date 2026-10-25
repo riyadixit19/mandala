@@ -12,7 +12,7 @@ const lato = Lato({ subsets: ['latin'], weight: ['400', '700', '900'], variable:
 export const metadata: Metadata = siteMetadata;
 
 export const viewport: Viewport = {
-  themeColor: '#FFF6E5',
+  themeColor: '#F4EFFF',
   width: 'device-width',
   initialScale: 1,
 };

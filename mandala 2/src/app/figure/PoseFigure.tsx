@@ -8,12 +8,12 @@ const C = {
   skin: '#F1C7A3',
   skinFar: '#DDAE89',
   hair: '#3A2A22',
-  top: '#E39B3A',
-  topFar: '#C9822A',
-  leg: '#2F5D50',
-  legFar: '#234A3F',
+  top: '#EC4C93',
+  topFar: '#C93D7C',
+  leg: '#5B3FD0',
+  legFar: '#46309F',
   cheek: '#EE9F96',
-  shadow: '#1D2A26',
+  shadow: '#1F2147',
 };
 
 const W = { torso: 19, pelvis: 10, sleeve: 10.5, arm: 7.2, leg: 11, neck: 7 };
