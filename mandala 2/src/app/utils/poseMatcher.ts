@@ -8,7 +8,7 @@ import { calculateAngle } from './angleCalculator';
 import { Joints, jointsFor, hasFigure, POSE_SPECS } from '../figure/poseRig';
 
 type Side = 'left' | 'right';
-type FeatureKind = 'elbow' | 'shoulder' | 'hip' | 'knee' | 'torso';
+type FeatureKind = 'elbow' | 'shoulder' | 'hip' | 'knee' | 'torso' | 'thigh';
 
 interface Feature {
   kind: FeatureKind;
@@ -30,9 +30,27 @@ const IDX = {
   right: { sh: 12, el: 14, wr: 16, hip: 24, kn: 26, an: 28 },
 };
 
-const WEIGHT: Record<FeatureKind, number> = { torso: 1.5, hip: 1.2, knee: 1.2, shoulder: 0.9, elbow: 0.5 };
-const TOLERANCE = 12; // degrees that count as perfect
-const SPAN = 50; // degrees past the tolerance where a joint scores zero
+const WEIGHT: Record<FeatureKind, number> = { torso: 1.5, hip: 1.2, knee: 1.2, thigh: 1, shoulder: 0.9, elbow: 0.5 };
+
+// The app is made for children with Down syndrome. Low muscle tone (hypotonia) and loose ligaments
+// make deep bends, raised arms and balancing hard to hold, so the check is deliberately forgiving.
+// It also allows for camera error: 2D angles from MediaPipe are typically 6-10 degrees off a lab
+// measurement, and elbows are the least reliable joint.
+
+/** Degrees off the target that still count as perfect, per joint. */
+const TOLERANCE: Record<FeatureKind, number> = { torso: 20, hip: 22, knee: 22, thigh: 20, shoulder: 25, elbow: 40 };
+/** Degrees past the tolerance where a joint scores zero. */
+const SPAN: Record<FeatureKind, number> = { torso: 55, hip: 60, knee: 60, thigh: 55, shoulder: 65, elbow: 75 };
+/** Each joint at rest: body upright, arms and legs hanging straight down. */
+const NEUTRAL: Record<FeatureKind, number> = { torso: 0, hip: 180, knee: 180, thigh: 0, shoulder: 0, elbow: 180 };
+/**
+ * Missing the target toward the resting position (bending the knees less, arms a little lower,
+ * folding or tilting less) is what tired, low-tone muscles do, so that error counts for less.
+ * Missing it the other way (arms too high, bending too far) counts in full.
+ */
+const EASIER_DIRECTION = 0.6;
+/** Most degrees the easier-direction allowance can forgive. Kept small for the thigh, which tells standing from lying down. */
+const MAX_RELIEF: Record<FeatureKind, number> = { torso: 25, hip: 25, knee: 25, thigh: 12, shoulder: 25, elbow: 20 };
 const MIN_VISIBILITY = 0.5;
 
 /** Torso tilt from vertical: 0 upright, 90 horizontal, 180 upside down. */
@@ -41,6 +59,10 @@ const torsoTilt = (kps: Keypoint[]) => {
   const hx = (kps[23].x + kps[24].x) / 2, hy = (kps[23].y + kps[24].y) / 2;
   return (Math.atan2(Math.abs(sx - hx), hy - sy) * 180) / Math.PI;
 };
+
+/** Thigh direction: 0 pointing down, 90 sideways, 180 up. Tells standing from lying, lunging or kicking. */
+const thighTilt = (hip: Keypoint, knee: Keypoint) =>
+  (Math.atan2(Math.abs(knee.x - hip.x), knee.y - hip.y) * 180) / Math.PI;
 
 function features(kps: Keypoint[], checkVisibility: boolean): Feature[] {
   const ok = (...ids: number[]) => !checkVisibility || ids.every(i => (kps[i]?.score ?? 0) >= MIN_VISIBILITY);
@@ -51,6 +73,7 @@ function features(kps: Keypoint[], checkVisibility: boolean): Feature[] {
     if (ok(i.sh, i.el, i.wr)) out.push({ kind: 'elbow', side, value: calculateAngle(kps[i.sh], kps[i.el], kps[i.wr]) });
     if (ok(i.el, i.sh, i.hip)) out.push({ kind: 'shoulder', side, value: calculateAngle(kps[i.el], kps[i.sh], kps[i.hip]) });
     if (ok(i.sh, i.hip, i.kn)) out.push({ kind: 'hip', side, value: calculateAngle(kps[i.sh], kps[i.hip], kps[i.kn]) });
+    if (ok(i.hip, i.kn)) out.push({ kind: 'thigh', side, value: thighTilt(kps[i.hip], kps[i.kn]) });
     if (ok(i.hip, i.kn, i.an)) out.push({ kind: 'knee', side, value: calculateAngle(kps[i.hip], kps[i.kn], kps[i.an]) });
   });
   return out;
@@ -91,6 +114,7 @@ function hintFor(f: Feature, ref: number): string {
     case 'knee': return tooSmall ? `Straighten your ${side}knee` : `Bend your ${side}knee more`;
     case 'elbow': return tooSmall ? `Straighten your ${side}arm` : `Bend your ${side}elbow more`;
     case 'shoulder': return tooSmall ? `Raise your ${side}arm higher` : `Lower your ${side}arm a little`;
+    case 'thigh': return tooSmall ? `Lift your ${side}leg higher` : `Lower your ${side}leg a little`;
     case 'hip': return tooSmall ? `Open up at your ${side}hip` : `Fold deeper at your ${side}hip`;
     case 'torso': return tooSmall ? 'Tilt your body further, like the picture' : 'Bring your body more upright';
   }
@@ -104,16 +128,21 @@ function compare(user: Feature[], ref: Feature[]) {
   for (const f of user) {
     const r = refMap.get(key(f));
     if (r === undefined) continue;
-    const err = Math.abs(f.value - r);
+    const raw = Math.abs(f.value - r);
+    const n = NEUTRAL[f.kind];
+    const easier = Math.sign(f.value - r) === Math.sign(n - r) && raw <= Math.abs(n - r);
+    const err = easier ? raw - Math.min(raw * (1 - EASIER_DIRECTION), MAX_RELIEF[f.kind]) : raw;
     // one badly wrong core joint means it's a different pose, however good the rest looks
-    if ((f.kind === 'torso' || f.kind === 'hip' || f.kind === 'knee') && err > 45) cap = Math.min(cap, 0.6);
-    if (f.kind === 'shoulder' && err > 60) cap = Math.min(cap, 0.68);
-    const sim = Math.max(0, 1 - Math.max(0, err - TOLERANCE) / SPAN);
+    if ((f.kind === 'torso' || f.kind === 'thigh') && err > 45) cap = Math.min(cap, 0.6);
+    if ((f.kind === 'hip' || f.kind === 'knee') && err > 55) cap = Math.min(cap, 0.6);
+    if (f.kind === 'shoulder' && err > 75) cap = Math.min(cap, 0.68);
+    const tol = TOLERANCE[f.kind];
+    const sim = Math.max(0, 1 - Math.max(0, err - tol) / SPAN[f.kind]);
     const w = WEIGHT[f.kind];
     total += sim * w;
     weight += w;
     const cost = err * w;
-    if (err > TOLERANCE + 8 && (!worst || cost > worst.cost)) worst = { f, ref: r, cost };
+    if (err > tol + 8 && (!worst || cost > worst.cost)) worst = { f, ref: r, cost };
   }
   return { score: weight ? Math.min(cap, total / weight) : 0, weight, worst };
 }

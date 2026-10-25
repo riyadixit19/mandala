@@ -42,7 +42,7 @@ const YogaPoseDetector: React.FC = () => {
   // true when the camera itself can zoom; otherwise the picture is zoomed on screen
   const [hardwareZoom, setHardwareZoom] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [confidenceLevel, setConfidenceLevel] = useState<ConfidenceLevel>('medium');
+  const [confidenceLevel, setConfidenceLevel] = useState<ConfidenceLevel>('low');
   const [currentPose, setCurrentPose] = useState('Unknown');
   const [poseCount, setPoseCount] = useState(0);
   const [posesData, setPosesData] = useState<PoseDataItem[]>([]);
