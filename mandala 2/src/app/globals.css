@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  background: #F3F4F0;
+  color: #1D2A26;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100vh;
+}
+
+:focus-visible {
+  outline: 2px solid #2F5D50;
+  outline-offset: 2px;
+}
+
+/* The character breathes slowly while she holds a pose */
+@keyframes pt-breathe {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.012, 1.022); }
+}
+
+.pt-breathe {
+  transform-origin: 100px 180px;
+  animation: pt-breathe 4.5s ease-in-out infinite;
+}
+
+.pt-scroll-x {
+  scrollbar-width: none;
+}
+.pt-scroll-x::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pt-breathe { animation: none; }
+  * { transition-duration: 0.01ms !important; }
+}
+
+/* Gentle rise for the countdown number when it changes */
+@keyframes pt-tick {
+  from { transform: scale(1.12); opacity: 0.6; }
+  to { transform: scale(1); opacity: 1; }
+}
+.pt-tick { animation: pt-tick 0.35s ease-out; }
+
+/* The verdict panel slides up once, when it appears */
+@keyframes pt-rise {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.pt-rise { animation: pt-rise 0.3s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pt-tick, .pt-rise { animation: none; }
+}
+
+/* Soft frosted card used across the practice studio */
+@layer components {
+  .pt-card {
+    border-radius: 1.75rem;
+    background: rgba(255, 255, 255, 0.72);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.7),
+      0 1px 2px rgba(29, 42, 38, 0.04),
+      0 14px 36px rgba(29, 42, 38, 0.07);
+  }
+}

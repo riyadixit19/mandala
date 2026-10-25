@@ -1,0 +1,312 @@
+[
+  {
+    "name": "Mountain Pose",
+    "description": "Standing tall with feet together and hands by the side.",
+    "keypoints": []
+  },
+  {
+    "name": "Tree Pose",
+    "description": "Balancing on one leg with the other foot on the inner thigh, arms reaching up to the sky.",
+    "keypoints": []
+  },
+  {
+    "name": "Triangle Pose",
+    "description": "Legs wide apart, one arm reaching down and the other up to form a triangle shape.",
+    "keypoints": []
+  },
+  {
+    "name": "Warrior I",
+    "description": "Front knee bent, back leg straight, arms extended overhead.",
+    "keypoints": []
+  },
+  {
+    "name": "Warrior II",
+    "description": "Front knee bent, back leg straight, arms extended sideways.",
+    "keypoints": []
+  },
+  {
+    "name": "Warrior III",
+    "description": "Balancing on one leg, arms and torso extended forward.",
+    "keypoints": []
+  },
+  {
+    "name": "Chair Pose",
+    "description": "Bending the knees as if sitting on an invisible chair with arms raised.",
+    "keypoints": []
+  },
+  {
+    "name": "Cobra Pose",
+    "description": "Lying face down, lifting the chest using back strength.",
+    "keypoints": []
+  },
+  {
+    "name": "Downward Dog",
+    "description": "Body forms an inverted V, hands and feet pressing into the floor.",
+    "keypoints": []
+  },
+  {
+    "name": "Upward Dog",
+    "description": "Chest lifted and thighs off the ground, supported by hands.",
+    "keypoints": []
+  },
+  {
+    "name": "Child's Pose",
+    "description": "Kneeling and folding forward with arms extended.",
+    "keypoints": []
+  },
+  {
+    "name": "Cat Pose",
+    "description": "On all fours, arch the back upward like a stretching cat.",
+    "keypoints": []
+  },
+  {
+    "name": "Cow Pose",
+    "description": "On all fours, dip the belly down and lift the head up.",
+    "keypoints": []
+  },
+  {
+    "name": "Bridge Pose",
+    "description": "Lying on the back, lift the hips upward.",
+    "keypoints": []
+  },
+  {
+    "name": "Camel Pose",
+    "description": "Kneeling and bending backward to touch heels with hands.",
+    "keypoints": []
+  },
+  {
+    "name": "Boat Pose",
+    "description": "Balancing on sit bones, raising legs and upper body in a V shape.",
+    "keypoints": []
+  },
+  {
+    "name": "Seated Forward Bend",
+    "description": "Sitting and bending forward to reach toes.",
+    "keypoints": []
+  },
+  {
+    "name": "Half Lord of the Fishes",
+    "description": "Seated twist with one leg crossed over the other.",
+    "keypoints": []
+  },
+  {
+    "name": "Fish Pose",
+    "description": "Lying on the back, arch the chest and lift the head slightly.",
+    "keypoints": []
+  },
+  {
+    "name": "Shoulder Stand",
+    "description": "Balancing on shoulders with legs and torso vertical.",
+    "keypoints": []
+  },
+  {
+    "name": "Plow Pose",
+    "description": "From Shoulder Stand, bring legs over the head to touch the floor.",
+    "keypoints": []
+  },
+  {
+    "name": "Bow Pose",
+    "description": "On stomach, grab ankles and lift chest and legs.",
+    "keypoints": []
+  },
+  {
+    "name": "Locust Pose",
+    "description": "On stomach, lift arms, chest, and legs upward.",
+    "keypoints": []
+  },
+  {
+    "name": "Crow Pose",
+    "description": "Balancing on arms with knees resting on triceps.",
+    "keypoints": []
+  },
+  {
+    "name": "Side Plank",
+    "description": "Balancing on one arm, body in a straight line.",
+    "keypoints": []
+  },
+  {
+    "name": "Plank Pose",
+    "description": "Body straight, supported by arms and toes.",
+    "keypoints": []
+  },
+  {
+    "name": "Low Lunge",
+    "description": "Front knee bent, back knee on the floor, arms raised.",
+    "keypoints": []
+  },
+  {
+    "name": "High Lunge",
+    "description": "Front knee bent, back leg straight, arms overhead.",
+    "keypoints": []
+  },
+  {
+    "name": "Pigeon Pose",
+    "description": "Front leg bent in front, back leg extended behind.",
+    "keypoints": []
+  },
+  {
+    "name": "Reclined Pigeon Pose",
+    "description": "On back, ankle crossed over opposite knee.",
+    "keypoints": []
+  },
+  {
+    "name": "Happy Baby Pose",
+    "description": "Lying on back, holding feet with hands.",
+    "keypoints": []
+  },
+  {
+    "name": "Corpse Pose",
+    "description": "Lying flat on the back, relaxed.",
+    "keypoints": []
+  },
+  {
+    "name": "Eagle Pose",
+    "description": "Arms and legs wrapped around each other while balancing.",
+    "keypoints": []
+  },
+  {
+    "name": "Dancer Pose",
+    "description": "Balancing on one leg while holding the opposite foot behind.",
+    "keypoints": []
+  },
+  {
+    "name": "Half Moon Pose",
+    "description": "Balancing on one leg, torso and one arm extended sideways.",
+    "keypoints": []
+  },
+  {
+    "name": "Revolved Triangle Pose",
+    "description": "Triangle variation with a twist.",
+    "keypoints": []
+  },
+  {
+    "name": "Intense Side Stretch",
+    "description": "Forward bend with both legs straight and hips square.",
+    "keypoints": []
+  },
+  {
+    "name": "Standing Forward Bend",
+    "description": "Standing and folding forward to touch the toes.",
+    "keypoints": []
+  },
+  {
+    "name": "Wide-Legged Forward Bend",
+    "description": "Feet wide apart, folding forward.",
+    "keypoints": []
+  },
+  {
+    "name": "Garland Pose",
+    "description": "Deep squat with hands in prayer.",
+    "keypoints": []
+  },
+  {
+    "name": "Head to Knee Pose",
+    "description": "Seated, one leg extended, bending over it.",
+    "keypoints": []
+  },
+  {
+    "name": "Cow Face Pose",
+    "description": "Arms clasped behind back, legs crossed tightly.",
+    "keypoints": []
+  },
+  {
+    "name": "Hero Pose",
+    "description": "Sitting on heels, back straight.",
+    "keypoints": []
+  },
+  {
+    "name": "Reclined Hero Pose",
+    "description": "Lying back from Hero Pose.",
+    "keypoints": []
+  },
+  {
+    "name": "Lotus Pose",
+    "description": "Cross-legged sitting with feet on opposite thighs.",
+    "keypoints": []
+  },
+  {
+    "name": "Easy Pose",
+    "description": "Simple cross-legged sitting posture.",
+    "keypoints": []
+  },
+  {
+    "name": "Staff Pose",
+    "description": "Sitting with legs straight and torso upright.",
+    "keypoints": []
+  },
+  {
+    "name": "Bound Angle Pose",
+    "description": "Sitting with soles of the feet together.",
+    "keypoints": []
+  },
+  {
+    "name": "Shoulder Opener Pose",
+    "description": "Standing, clasping hands behind back and lifting.",
+    "keypoints": []
+  },
+  {
+    "name": "Standing Split",
+    "description": "One leg lifted vertically while standing on the other.",
+    "keypoints": []
+  },
+  {
+    "name": "King Dancer Pose",
+    "description": "Advanced Dancer Pose, holding lifted foot with both hands.",
+    "keypoints": []
+  },
+  {
+    "name": "Half Frog Pose",
+    "description": "Lying face down, one leg bent and held by hand.",
+    "keypoints": []
+  },
+  {
+    "name": "Full Frog Pose",
+    "description": "Lying face down, both legs bent and held by hands.",
+    "keypoints": []
+  },
+  {
+    "name": "Forearm Stand",
+    "description": "Inversion balancing on forearms.",
+    "keypoints": []
+  },
+  {
+    "name": "Handstand",
+    "description": "Inversion balancing on hands.",
+    "keypoints": []
+  },
+  {
+    "name": "Headstand",
+    "description": "Inversion balancing on head and forearms.",
+    "keypoints": []
+  },
+  {
+    "name": "Scorpion Pose",
+    "description": "Forearm balance with deep backbend.",
+    "keypoints": []
+  },
+  {
+    "name": "Firefly Pose",
+    "description": "Arm balance with legs extended forward.",
+    "keypoints": []
+  },
+  {
+    "name": "Peacock Pose",
+    "description": "Balancing on hands with body parallel to the ground.",
+    "keypoints": []
+  },
+  {
+    "name": "Side Crow Pose",
+    "description": "Twisting arm balance with legs to one side.",
+    "keypoints": []
+  },
+  {
+    "name": "Eight-Angle Pose",
+    "description": "Advanced arm balance with interlaced legs.",
+    "keypoints": []
+  },
+  {
+    "name": "Unknown Pose",
+    "description": "We couldn’t detect a known yoga pose. Try standing back and making sure your full body is visible!",
+    "keypoints": []
+  }
+]
