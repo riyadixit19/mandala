@@ -8,8 +8,8 @@ import Scene from '../components/Scene';
 const POSES = ['Tree Pose', 'Warrior II', 'Chair Pose', 'Triangle Pose', 'Mountain Pose', 'Eagle Pose', 'Dancer Pose'];
 const EVERY_MS = 2600;
 
-export default function PoseCarousel({ className, hill, figure }: { className?: string; hill?: number; figure?: number }) {
-  const [i, setI] = useState(0);
+export default function PoseCarousel({ className, hill, figure, startAt = 0 }: { className?: string; hill?: number; figure?: number; startAt?: number }) {
+  const [i, setI] = useState(startAt % POSES.length);
   useEffect(() => {
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
     const id = window.setInterval(() => setI(n => (n + 1) % POSES.length), EVERY_MS);

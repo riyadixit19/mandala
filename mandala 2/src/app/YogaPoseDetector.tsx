@@ -16,13 +16,16 @@ import CameraControls, { GrownUpSettings } from './components/CameraControls';
 import PosePanel from './components/PosePanel';
 import HelpModal from './components/HelpModal';
 import CoachMessage from './components/CoachMessage';
-import { FlowerSticker } from './components/brand/Logo';
 import PoseFigure from './figure/PoseFigure';
-import { StarTracker, StarCelebration, StarProgressBar } from './components/Stars';
+import { StarCelebration, StarProgressBar } from './components/Stars';
 import { addStar, POSES_PER_STAR } from './utils/stars';
+import { Routine, findRoutine } from './utils/routines';
+import TopBar from './components/TopBar';
 
 /** A detection result older than this is treated as "nobody in frame" */
 const STALE_FRAME_MS = 700;
+/** In a routine, how long to enjoy a finished pose before the next one starts */
+const ROUTINE_PAUSE_MS = 3500;
 
 const YogaPoseDetector: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -49,6 +52,12 @@ const YogaPoseDetector: React.FC = () => {
   const [starPoses, setStarPoses] = useState<string[]>([]);
   const starPosesRef = useRef<Set<string>>(new Set());
   const [newStar, setNewStar] = useState<number | null>(null);
+  const [starReason, setStarReason] = useState<string | null>(null);
+  // following a routine: which one, which pose we're on, and whether it's finished
+  const [routine, setRoutine] = useState<{ r: Routine; step: number; done: boolean } | null>(null);
+  const routineRef = useRef(routine);
+  routineRef.current = routine;
+  const advanceTimer = useRef<number | null>(null);
   const [posesData, setPosesData] = useState<PoseDataItem[]>([]);
   const [selectedPoseIndex, setSelectedPoseIndex] = useState<number | null>(null);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -98,6 +107,53 @@ const YogaPoseDetector: React.FC = () => {
     frameRef.current = null;
     setSessionView(null);
   }, []);
+
+  // /practice?pose=Tree%20Pose picks a pose; /practice?routine=sunny-morning starts a routine
+  const urlRead = useRef(false);
+  useEffect(() => {
+    if (!posesData.length || urlRead.current) return;
+    urlRead.current = true;
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('routine');
+    const r = id ? findRoutine(id) : undefined;
+    if (r) {
+      setRoutine({ r, step: 0, done: false });
+    } else {
+      const i = posesData.findIndex(p => p.name === params.get('pose'));
+      if (i >= 0) setSelectedPoseIndex(i);
+    }
+  }, [posesData]);
+
+  // in a routine, the current step decides the pose (and a repeated pose still starts fresh)
+  const routineStep = routine?.step;
+  const routineDef = routine?.r;
+  useEffect(() => {
+    if (!routineDef || routineStep === undefined) return;
+    const i = posesData.findIndex(p => p.name === routineDef.poses[routineStep]);
+    if (i >= 0) setSelectedPoseIndex(i);
+    resetSession();
+  }, [routineDef, routineStep, posesData, resetSession]);
+
+  const goToStep = useCallback((step: number) => {
+    if (advanceTimer.current !== null) window.clearTimeout(advanceTimer.current);
+    advanceTimer.current = null;
+    setRoutine(cur => cur && { ...cur, step: Math.max(0, Math.min(step, cur.r.poses.length - 1)), done: false });
+  }, []);
+
+  useEffect(() => () => {
+    if (advanceTimer.current !== null) window.clearTimeout(advanceTimer.current);
+  }, []);
+
+  const restartRoutine = () => {
+    goToStep(0);
+    resetSession();
+  };
+
+  const leaveRoutine = () => {
+    if (advanceTimer.current !== null) window.clearTimeout(advanceTimer.current);
+    setRoutine(null);
+    window.history.replaceState(null, '', '/practice');
+  };
 
   // A new target or strictness starts the practice over
   useEffect(() => {
@@ -209,6 +265,10 @@ const YogaPoseDetector: React.FC = () => {
 
   const nextPose = () => {
     if (!posesData.length) return;
+    if (routine) {
+      if (routine.step < routine.r.poses.length - 1) goToStep(routine.step + 1);
+      return;
+    }
     setSelectedPoseIndex(i => {
       let next = i === null ? 0 : (i + 1) % posesData.length;
       // skip the placeholder entry the library hides
@@ -328,13 +388,25 @@ const YogaPoseDetector: React.FC = () => {
         if (targetNameRef.current) done.add(targetNameRef.current);
         if (done.size >= POSES_PER_STAR) {
           done.clear();
+          setStarReason(null);
           setNewStar(addStar());
         }
         setStarPoses(Array.from(done));
+        // in a routine: move on to the next pose, or finish and earn a star
+        const rt = routineRef.current;
+        if (rt && !rt.done) {
+          if (rt.step < rt.r.poses.length - 1) {
+            advanceTimer.current = window.setTimeout(() => goToStep(rt.step + 1), ROUTINE_PAUSE_MS);
+          } else {
+            setRoutine({ ...rt, done: true });
+            setStarReason(`You finished ${rt.r.name}!`);
+            setNewStar(addStar());
+          }
+        }
       }
     }, 100);
     return () => window.clearInterval(id);
-  }, [isCameraOn, targetName]);
+  }, [isCameraOn, targetName, goToStep]);
 
   const mirrored = facingMode === 'user';
   const cssZoom = hardwareZoom ? 1 : zoom;
@@ -343,18 +415,15 @@ const YogaPoseDetector: React.FC = () => {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-paper text-ink">
-      <header>
-        {/* like a game's top bar: home and stars, progress to the next star, help */}
-        <div className="mx-auto flex max-w-7xl items-start gap-3 px-4 pb-2 pt-4 sm:gap-6 sm:px-6">
-          <div className="flex shrink-0 items-center gap-2">
-            <Link href="/" className="pt-btn flex h-14 w-14 items-center justify-center rounded-full bg-card" aria-label="Mandala home">
-              <FlowerSticker className="h-9 w-9" />
-            </Link>
-            <StarTracker />
-          </div>
-          <div className="mx-auto mt-3.5 min-w-0 max-w-md flex-1">
+      <TopBar
+        center={
+          routine ? (
+            <StarProgressBar done={routine.done ? routine.r.poses.length : routine.step} total={routine.r.poses.length} label={routine.done ? 'All done!' : `Pose ${routine.step + 1} of ${routine.r.poses.length}`} />
+          ) : (
             <StarProgressBar done={starPoses.length} />
-          </div>
+          )
+        }
+        right={
           <button
             onClick={() => setIsHelpOpen(true)}
             aria-label="Help"
@@ -362,8 +431,8 @@ const YogaPoseDetector: React.FC = () => {
           >
             ?
           </button>
-        </div>
-      </header>
+        }
+      />
 
       <main className="mx-auto max-w-7xl space-y-6 px-4 pb-10 sm:px-6">
         {error && (
@@ -386,6 +455,8 @@ const YogaPoseDetector: React.FC = () => {
               onSelect={setSelectedPoseIndex}
               onSelectAndGo={selectAndGo}
               onNextPose={nextPose}
+              routine={routine && { name: routine.r.name, poses: routine.r.poses, step: routine.step, done: routine.done }}
+              onLeaveRoutine={leaveRoutine}
             />
           </div>
 
@@ -431,8 +502,10 @@ const YogaPoseDetector: React.FC = () => {
               threshold={threshold}
               isCameraOn={isCameraOn}
               isReady={isModelLoaded}
-              onRestart={resetSession}
+              onRestart={routine ? restartRoutine : resetSession}
               onNextPose={nextPose}
+              routineNext={routine && !routine.done && routine.step < routine.r.poses.length - 1 ? routine.r.poses[routine.step + 1] : null}
+              routineDone={routine?.done ? routine.r.name : null}
             />
 
             <CameraControls
@@ -476,7 +549,7 @@ const YogaPoseDetector: React.FC = () => {
       </main>
 
       <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
-      {newStar !== null && <StarCelebration stars={newStar} onClose={() => setNewStar(null)} />}
+      {newStar !== null && <StarCelebration stars={newStar} reason={starReason} onClose={() => setNewStar(null)} />}
     </div>
   );
 };

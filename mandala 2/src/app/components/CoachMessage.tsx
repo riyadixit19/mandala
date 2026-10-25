@@ -1,6 +1,7 @@
 // components/CoachMessage.tsx
 // The one big message under the camera: what to do right now, in a few short words.
 import React from 'react';
+import Link from 'next/link';
 import { SessionView } from '../utils/practiceSession';
 import { CHECK_SECONDS, HOLD_SECONDS } from '../constants/yoga.constants';
 import { LogoMark } from './brand/Logo';
@@ -14,6 +15,10 @@ interface CoachMessageProps {
   isReady: boolean;
   onRestart: () => void;
   onNextPose: () => void;
+  /** in a routine: the pose that comes next (it starts by itself) */
+  routineNext?: string | null;
+  /** in a routine: its name, once the last pose is finished */
+  routineDone?: string | null;
 }
 
 /** Big countdown number inside a thick ring; the number pops each second */
@@ -87,7 +92,7 @@ function CloseBar({ score, threshold }: { score: number; threshold: number }) {
   );
 }
 
-const CoachMessage: React.FC<CoachMessageProps> = ({ view, targetName, threshold, isCameraOn, isReady, onRestart, onNextPose }) => {
+const CoachMessage: React.FC<CoachMessageProps> = ({ view, targetName, threshold, isCameraOn, isReady, onRestart, onNextPose, routineNext, routineDone }) => {
   let visual: React.ReactNode = null;
   let title = '';
   let body: React.ReactNode = null;
@@ -98,7 +103,7 @@ const CoachMessage: React.FC<CoachMessageProps> = ({ view, targetName, threshold
     body = 'This takes a few seconds.';
   } else if (!targetName) {
     title = 'Pick a pose';
-    body = 'Press the blue button.';
+    body = 'Press Pick a pose at the top.';
   } else if (!isCameraOn) {
     title = 'Press Start camera';
     body = `Then we can do ${targetName} together.`;
@@ -127,13 +132,36 @@ const CoachMessage: React.FC<CoachMessageProps> = ({ view, targetName, threshold
     visual = <Countdown remaining={view.holdRemaining} total={HOLD_SECONDS} color="#B7C2C6" />;
     title = view.hint ?? 'Come back to the pose';
     body = 'The timer is waiting for you.';
+  } else if (view.phase === 'complete' && routineNext) {
+    visual = <Marker good burst />;
+    title = 'Well done!';
+    body = `Next up: ${routineNext}`;
+    extra = (
+      <button onClick={onNextPose} className="pt-btn mt-5 h-16 rounded-full bg-leaf px-8 text-2xl font-extrabold text-white">
+        Go now
+      </button>
+    );
+  } else if (view.phase === 'complete' && routineDone) {
+    visual = <Marker good burst />;
+    title = 'Routine done!';
+    body = `You finished ${routineDone}.`;
+    extra = (
+      <div className="mt-5 flex flex-wrap gap-3">
+        <button onClick={onRestart} className="pt-btn h-16 rounded-full bg-paper px-8 text-2xl font-extrabold text-ink">
+          Again
+        </button>
+        <Link href="/routines" className="pt-btn inline-flex h-16 items-center rounded-full bg-leaf px-8 text-2xl font-extrabold text-white">
+          More routines
+        </Link>
+      </div>
+    );
   } else if (view.phase === 'complete') {
     visual = <Marker good burst />;
     title = 'Well done!';
     body = `You held ${targetName}.`;
     extra = (
       <div className="mt-5 flex flex-wrap gap-3">
-        <button onClick={onRestart} className="pt-btn h-16 rounded-full bg-card px-8 text-2xl font-extrabold text-ink">
+        <button onClick={onRestart} className="pt-btn h-16 rounded-full bg-paper px-8 text-2xl font-extrabold text-ink">
           Again
         </button>
         <button onClick={onNextPose} className="pt-btn h-16 rounded-full bg-leaf px-8 text-2xl font-extrabold text-white">

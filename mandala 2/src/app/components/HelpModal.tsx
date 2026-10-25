@@ -9,11 +9,11 @@ interface HelpModalProps {
 }
 
 const STEPS = [
-  { title: 'Pick a pose', body: 'Press the blue button and tap a pose. Hold it down to start right away.' },
+  { title: 'Pick a pose', body: 'Press Pick a pose and tap one. Hold it down to start right away. Or try a routine!' },
   { title: 'Start the camera', body: 'Stand back so the camera sees you from head to toes.' },
   { title: 'Copy the picture', body: `Hold still for ${CHECK_SECONDS} seconds.` },
   { title: 'Stay there', body: `Keep the pose for ${HOLD_SECONDS} seconds and earn a flower.` },
-  { title: 'Collect stars', body: `${POSES_PER_STAR} different poses make a star. Get ${GOLD_DAY_STARS} stars in one day for a golden day!` },
+  { title: 'Collect stars', body: `${POSES_PER_STAR} different poses make a star, and so does finishing a routine. Get ${GOLD_DAY_STARS} stars in one day for a golden day!` },
 ];
 
 const STEP_COLORS = ['bg-lilac text-white', 'bg-rose text-white', 'bg-sun text-ink', 'bg-leaf text-white'];

@@ -3,7 +3,7 @@
 // Tap a pose to pick it. Hold it down (phone) or right-click it (computer) to pick it and start.
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { PoseDataItem } from '../types/yoga.types';
-import { POSE_CATEGORIES, isRealPose } from '../constants/yoga.constants';
+import { groupPoses, GROUP_TILES, GROUP_DOTS } from '../utils/poseGroups';
 import PoseFigure from '../figure/PoseFigure';
 
 interface PosePickerProps {
@@ -15,9 +15,6 @@ interface PosePickerProps {
 }
 
 const HOLD_MS = 550;
-// each kind of pose gets its own tile colour, like a sheet of stickers
-const GROUP_TILES = ['bg-lilac-soft', 'bg-rose-soft', 'bg-sun-soft', 'bg-leaf-soft', 'bg-peach-soft', 'bg-paper'];
-const GROUP_DOTS = ['bg-lilac', 'bg-rose', 'bg-sun', 'bg-leaf', 'bg-peach', 'bg-hill'];
 
 function Arrow({ open }: { open: boolean }) {
   return (
@@ -35,17 +32,7 @@ const PosePicker: React.FC<PosePickerProps> = ({ posesData, selectedPoseIndex, o
   const held = useRef(false);
   const target = selectedPoseIndex !== null ? posesData[selectedPoseIndex] : undefined;
 
-  const groups = useMemo(() => {
-    const indexed = posesData.map((pose, index) => ({ pose, index })).filter(({ pose }) => isRealPose(pose.name));
-    const out = POSE_CATEGORIES.filter(c => c.poses).map(c => ({
-      name: c.name,
-      items: indexed.filter(({ pose }) => c.poses!.includes(pose.name)),
-    }));
-    const listed = new Set(POSE_CATEGORIES.flatMap(c => c.poses ?? []));
-    const rest = indexed.filter(({ pose }) => !listed.has(pose.name));
-    if (rest.length) out.push({ name: 'More poses', items: rest });
-    return out.filter(g => g.items.length);
-  }, [posesData]);
+  const groups = useMemo(() => groupPoses(posesData), [posesData]);
 
   const close = (refocus = true) => {
     setOpen(false);

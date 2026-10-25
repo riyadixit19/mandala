@@ -76,29 +76,30 @@ export function StarTracker() {
   );
 }
 
-/** The bar along the top: how many different poses are done on the way to the next star */
-export function StarProgressBar({ done }: { done: number }) {
+/** The bar along the top: how many different poses are done on the way to the next star
+ *  (or, in a routine, how far through it you are) */
+export function StarProgressBar({ done, total = POSES_PER_STAR, label }: { done: number; total?: number; label?: string }) {
   return (
     <div className="w-full">
       <div
         className="h-7 w-full overflow-hidden rounded-full bg-ink/[0.08]"
         role="progressbar"
         aria-valuemin={0}
-        aria-valuemax={POSES_PER_STAR}
+        aria-valuemax={total}
         aria-valuenow={done}
-        aria-label="Different poses done on the way to the next star"
+        aria-label={label ?? 'Different poses done on the way to the next star'}
       >
-        <div className="h-full rounded-full bg-sun-soft" style={{ width: `${(done / POSES_PER_STAR) * 100}%`, transition: 'width 0.6s ease-out' }} />
+        <div className="h-full rounded-full bg-sun-soft" style={{ width: `${(done / total) * 100}%`, transition: 'width 0.6s ease-out' }} />
       </div>
       <p className="mt-1 text-center text-base font-extrabold text-ink sm:text-lg">
-        {done} of {POSES_PER_STAR}
+        {label ?? `${done} of ${total}`}
       </p>
     </div>
   );
 }
 
 /** Full-screen celebration when a star is earned. Closes by itself, or with a tap. */
-export function StarCelebration({ stars, onClose }: { stars: number; onClose: () => void }) {
+export function StarCelebration({ stars, reason, onClose }: { stars: number; reason?: string | null; onClose: () => void }) {
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
   useEffect(() => {
@@ -118,9 +119,8 @@ export function StarCelebration({ stars, onClose }: { stars: number; onClose: ()
         <StarShape className="pt-star-in mx-auto h-40 w-40" />
         <h2 id="star-title" className="mt-4 font-display text-5xl font-bold text-ink">You got a star!</h2>
         <p className="mt-3 text-2xl text-muted">
-          {gold && stars === 3
-            ? 'Three stars today. It is a golden day!'
-            : `You finished ${POSES_PER_STAR} different poses.`}
+          {reason ?? `You finished ${POSES_PER_STAR} different poses.`}
+          {gold && stars === 3 && ' Three stars today. It is a golden day!'}
         </p>
         <button
           onClick={onClose}
