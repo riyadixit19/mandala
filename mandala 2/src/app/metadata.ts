@@ -1,8 +1,8 @@
 // src/app/metadata.ts
-// SEO metadata for Mandala. Update SITE_URL to wherever the app is deployed.
+// SEO metadata for Mandala. SITE_URL is the app's live domain.
 import type { Metadata } from 'next';
 
-export const SITE_URL = 'https://yogaposedetector.netlify.app';
+export const SITE_URL = 'https://mandala.help';
 const DESCRIPTION =
   'Mandala is a free yoga coach that runs in your browser. Pick a pose, hold it in front of your camera, and it tells you when your form is right, then times your hold.';
 
