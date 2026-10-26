@@ -55,7 +55,7 @@ public/
 - Hold and timer lengths: `CHECK_SECONDS` and `HOLD_SECONDS` in `src/app/constants/yoga.constants.ts`.
 - Strictness thresholds: `CONFIDENCE_PRESETS` in the same file.
 - A pose's reference shape: edit its angles in `src/app/figure/poseRig.ts`. The illustration and the form check both update.
-- Before deploying, set `SITE_URL` in `src/app/metadata.ts` to your real domain.
+- The live domain is https://mandala.help. If it changes, update `SITE_URL` in `src/app/metadata.ts`, `public/sitemap.xml` and `public/robots.txt`.
 
 ## Known limits
 

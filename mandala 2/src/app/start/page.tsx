@@ -18,7 +18,7 @@ export default function StartPage() {
             <Scene pose="Tree Pose" hill={0.26} figure={0.64} className="aspect-[4/3] w-full rounded-2xl" title="A girl doing Tree Pose" />
             <div className="mt-4 px-1">
               <p className="font-display text-4xl font-bold">One pose</p>
-              <p className="mt-1 text-xl text-muted">Pick any pose and practise it.</p>
+              <p className="mt-1 text-xl text-muted">Pick any pose and practice it.</p>
             </div>
           </Link>
 

@@ -1,5 +1,5 @@
 'use client';
-// src/app/poses/page.tsx: every pose as a picture tile. Tap one to practise it.
+// src/app/poses/page.tsx: every pose as a picture tile. Tap one to practice it.
 
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
